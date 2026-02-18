@@ -25,6 +25,14 @@ builder.Services.AddScoped<IService<Course>, CourseService>();
 builder.Services.AddScoped<IRepository<Users>, UserRepository>();
 builder.Services.AddScoped<IService<UsersDto>, UsersService>();
 builder.Services.AddScoped<ILogin, UserLoginService>();
+builder.Services.AddScoped<IRepository<Materials>, MaterialsRepository>();
+builder.Services.AddScoped<IService<Materials>, MaterialsService>();
+builder.Services.AddScoped<IRepository<Question>, QuestionRepository>();
+builder.Services.AddScoped<IService<Question>, QuestionService>();
+builder.Services.AddScoped<IRepository<AnswerOptions>, AnswerOptionRepository>();
+builder.Services.AddScoped<IService<AnswerOptions>, AnswerOptionsService>();
+builder.Services.AddScoped<IRepository<Chapter>, ChapterRepository>();
+builder.Services.AddScoped<IService<Chapter>, ChapterService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
