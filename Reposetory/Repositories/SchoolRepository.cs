@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public School AddItem(School item)
         {
-            _context.AddSchool(item);
+            _context.Schools.Add(item);
             _context.save();
             return item;
         }
@@ -27,7 +27,7 @@ namespace Repository.Repositories
             var school = GetById(id);
             if (school != null)
             {
-                _context.RemoveSchool(school);
+                _context.Schools.Remove(school);
                 _context.save();
             }
         }

@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public Course AddItem(Course item)
         {
-            _context.AddCourse(item);
+            _context.Courses.Add(item);
             _context.save();
             return item;
         }
@@ -27,7 +27,7 @@ namespace Repository.Repositories
             var course = GetById(id);
             if (course != null)
             {
-                _context.RemoveCourse(course);
+                _context.Courses.Remove(course);
                 _context.save();
             }
         }
@@ -39,7 +39,7 @@ namespace Repository.Repositories
 
         public Course GetById(int id)
         {
-            return _context.Courses.ToList().FirstOrDefault(x => x.CourseId == id);
+            return _context.Courses.FirstOrDefault(x => x.CourseId == id);
         }
 
         public void UpdateItem(int id, Course item)

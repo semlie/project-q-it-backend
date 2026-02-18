@@ -20,7 +20,6 @@ namespace Service.Services
         public Users Authenticate(UserLogin user)
         {
          return   _repository.GetAll().FirstOrDefault(x => x.UserEmail == user.Email && x.UserName == user.UserName);
-             
         }
     }
 }

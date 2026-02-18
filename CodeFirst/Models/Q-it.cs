@@ -19,47 +19,17 @@ namespace CodeFirst.Models
         public virtual DbSet<Question> Question { get; set; }
         public virtual DbSet<School> School { get; set; }
 
-        IEnumerable<Chapter> IContext.Chapters => Chapter;
-        IEnumerable<Users> IContext.Users => Users;
-        IEnumerable<Course> IContext.Courses => Course;
-        IEnumerable<AnswerOptions> IContext.AnswerOptions => AnswerOptions;
-        IEnumerable<Question> IContext.Questions => Question;
-        IEnumerable<Materials> IContext.Materials => Materials;
-        IEnumerable<School> IContext.Schools => School;
+        ICollection<Chapter> IContext.Chapters => Chapter.ToList();
+        ICollection<Users> IContext.Users => Users.ToList();
+        ICollection<Course> IContext.Courses => Course.ToList();
+        ICollection<AnswerOptions> IContext.AnswerOptions => AnswerOptions.ToList();
+        ICollection<Question> IContext.Questions => Question.ToList();
+        ICollection<Materials> IContext.Materials => Materials.ToList();
+        ICollection<School> IContext.Schools => School.ToList();
 
         public void save()
         {
             SaveChanges();
-        }
-
-        public void AddSchool(School school)
-        {
-            School.Add(school);
-        }
-
-        public void RemoveSchool(School school)
-        {
-            School.Remove(school);
-        }
-
-        public void AddCourse(Course course)
-        {
-            Course.Add(course);
-        }
-
-        public void RemoveCourse(Course course)
-        {
-            Course.Remove(course);
-        }
-
-        public void AddUser(Users user)
-        {
-            Users.Add(user);
-        }
-
-        public void RemoveUser(Users user)
-        {
-            Users.Remove(user);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

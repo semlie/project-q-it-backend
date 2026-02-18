@@ -27,21 +27,18 @@ namespace webApiProject.Controllers
         {
             return service.GetAll();
         }
-
         // GET api/<LoginController>/5
         [HttpGet("{id}")]
         public Course Get(int id)
         {
             return service.GetById(id);
         }
-
         // PUT api/<LoginController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Course value)
         {
             service.UpdateItem(id,value);
         }
-
         // DELETE api/<LoginController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
