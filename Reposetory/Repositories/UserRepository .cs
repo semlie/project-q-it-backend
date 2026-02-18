@@ -49,5 +49,6 @@ namespace Repository.Repositories
             User.NameClass = item.NameClass;
             _context.save();
         }
+       
     }
 }
