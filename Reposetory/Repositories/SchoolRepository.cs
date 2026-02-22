@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public School AddItem(School item)
         {
-            _context.Schools.Add(item);
+            _context.Set<School>().Add(item);
             _context.save();
             return item;
         }
@@ -27,29 +27,33 @@ namespace Repository.Repositories
             var school = GetById(id);
             if (school != null)
             {
-                _context.Schools.Remove(school);
+                _context.Set<School>().Remove(school);
                 _context.save();
             }
         }
 
         public List<School> GetAll()
         {
-           return _context.Schools.ToList();  
+           return _context.Set<School>().ToList();  
         }
 
         public School GetById(int id)
         {
-            return _context.Schools.FirstOrDefault(s => s.NameSchool == id.ToString());
+            return _context.Set<School>().FirstOrDefault(s => s.SchoolId == id);
         }
 
-        public void UpdateItem(int id, School item)
+        public void UpdateItem(int id, School newItem)
         {
             var school = GetById(id);
             if (school != null)
             {
-                school.NameSchool = item.NameSchool;
-                school.NameClass = item.NameClass;
+                school.NameSchool = newItem.NameSchool;
+                school.NameClass = newItem.NameClass;
                 _context.save();
+            }
+            else
+            {
+                throw new Exception($"School with ID {id} not found");
             }
         }
     }

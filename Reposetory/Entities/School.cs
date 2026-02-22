@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 
 namespace Repository.Entities
 {
-    public  class School
+    [Table("School")]
+    public class School
     {
         [Key]
-        public string NameSchool { get; set; }
-        public string NameClass { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int SchoolId { get; set; }
+        public required string NameSchool { get; set; }
+        public required string NameClass { get; set; }
     }
 }

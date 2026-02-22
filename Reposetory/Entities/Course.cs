@@ -13,7 +13,7 @@ namespace Repository.Entities
         [Key]
         public int CourseId { get; set; }
         [ForeignKey("Users")]
-        public string CourseName { get; set; }
+        public required string CourseName { get; set; }
         public int UserId { get; set; }
     }
 }

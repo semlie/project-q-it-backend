@@ -1,4 +1,5 @@
 ﻿using Repository.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Repository.interfaces
         public ICollection<AnswerOptions> AnswerOptions { get; }
         public ICollection<Chapter> Chapters { get; }
         public ICollection<Course> Courses { get; }
+        public DbSet<T> Set<T>() where T : class;
         public void save();
     }
 }

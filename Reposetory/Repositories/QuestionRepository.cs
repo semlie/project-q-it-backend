@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public Question AddItem(Question item)
         {
-            _context.Questions.Add(item);
+            _context.Set<Question>().Add(item);
             _context.save();
             return item;
         }
@@ -27,19 +27,19 @@ namespace Repository.Repositories
             var question = GetById(id);
             if (question != null)
             {
-                _context.Questions.Remove(question  );
+                _context.Set<Question>().Remove(question  );
                 _context.save();
             }
         }
 
         public List<Question> GetAll()
         {
-           return _context.Questions.ToList();  
+           return _context.Set<Question>().ToList();  
         }
 
         public Question GetById(int id)
         {
-            return _context.Questions.FirstOrDefault(q => q.QuestionId == id);
+            return _context.Set<Question>().FirstOrDefault(q => q.QuestionId == id);
         }
 
         public void UpdateItem(int id, Question item)

@@ -33,8 +33,8 @@ namespace CodeFirst.Models
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer("server=sql;database=Q-itDB;trusted_connection=true;TrustServerCertificate=True");
-            optionsBuilder.UseSqlite("Data Source=QitDB.db");
+            //optionsBuilder.UseSqlServer("server=localhost;database=Q-itDB;trusted_connection=true;TrustServerCertificate=True");
+            optionsBuilder.UseSqlite("Data Source=/Users/semliebeskind/Documents/שנה ב/project-q-it/project-q-it-backend/CodeFirst/QitDB.db");
         }
     }
 }

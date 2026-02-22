@@ -23,20 +23,6 @@ namespace webApiProject.Controllers
             this.login = login;
             this.config = configuration;
         }
-        // GET: api/<LoginController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<LoginController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/<LoginController>
         [HttpPost]
         public IActionResult Post([FromBody] UserLogin user)
@@ -67,20 +53,6 @@ namespace webApiProject.Controllers
                 expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-
-
-        // PUT api/<LoginController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<LoginController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

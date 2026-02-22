@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public Users AddItem(Users item)
         {
-           _context.Users.Add(item);
+           _context.Set<Users>().Add(item);
             
             _context.save();
             return item;
@@ -25,29 +25,31 @@ namespace Repository.Repositories
 
         public void DeleteItem(int id)
         {
-            _context.Users.Remove(GetById(id));
+            _context.Set<Users>().Remove(GetById(id));
             _context.save();
         }
 
         public List<Users> GetAll()
         {
-           return _context.Users.ToList();  
+           return _context.Set<Users>().ToList();  
         }
 
         public Users GetById(int id)
         {
-            return _context.Users.FirstOrDefault(x => x.UserId == id);
+            return _context.Set<Users>().FirstOrDefault(x => x.UserId == id);
         }
 
-        public void UpdateItem(int id, Users item)
+        public void UpdateItem(int id, Users newItem)
         {
-          var User=  GetById(id);
-            User.UserName = item.UserName;
-            User.UserEmail = item.UserEmail;
-            User.Role = item.Role;
-            User.NameSchool = item.NameSchool;
-            User.NameClass = item.NameClass;
-            _context.save();
+            var user = GetById(id);
+            if (user != null)
+            {
+                user.UserName = newItem.UserName;
+                user.UserPassword = newItem.UserPassword;
+                user.UserEmail = newItem.UserEmail;
+                user.Role = newItem.Role;
+                _context.save();
+            }
         }
        
     }

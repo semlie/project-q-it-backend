@@ -11,19 +11,17 @@ using System.Threading.Tasks;
 
 namespace Service.Services
 {
-    public class UsersService : IService<UsersDto>
+    public class UsersService : IService<Users>
     {
         private readonly IRepository<Users> repository;
-        private readonly IMapper mapper;
-        public UsersService(IRepository<Users> repository,IMapper mapper)
+        public UsersService(IRepository<Users> repository)
         {
             this.repository = repository;
-            this.mapper = mapper;
         }
-        public UsersDto AddItem(UsersDto item)
+        public Users AddItem(Users item)
         {
 
-           return mapper.Map<Users,UsersDto>( repository.AddItem(mapper.Map<UsersDto, Users>(item)));
+           return repository.AddItem(item);
         }
 
         public void DeleteItem(int id)
@@ -31,17 +29,17 @@ namespace Service.Services
             repository.GetById(id);
         }
 
-        public List<UsersDto> GetAll()
+        public List<Users> GetAll()
         {
-           return mapper.Map<List<Users>,List<UsersDto>>(repository.GetAll());
+           return repository.GetAll();
         }
 
-        public UsersDto GetById(int id)
+        public Users GetById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateItem(int id, UsersDto item)
+        public void UpdateItem(int id, Users item)
         {
             throw new NotImplementedException();
         }

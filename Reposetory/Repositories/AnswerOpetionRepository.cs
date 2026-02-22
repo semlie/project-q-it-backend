@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public AnswerOptions AddItem(AnswerOptions item)
         {
-            _context.AnswerOptions.Add(item);
+            _context.Set<AnswerOptions>().Add(item);
             _context.save();
             return item;
         }
@@ -27,19 +27,19 @@ namespace Repository.Repositories
             var answerOption = GetById(id);
             if (answerOption != null)
             {
-                _context.AnswerOptions.Remove(answerOption);
+                _context.Set<AnswerOptions>().Remove(answerOption);
                 _context.save();
             }
         }
 
         public List<AnswerOptions> GetAll()
         {
-           return _context.AnswerOptions.ToList();  
+           return _context.Set<AnswerOptions>().ToList();  
         }
 
         public AnswerOptions GetById(int id)
         {
-            return _context.AnswerOptions.FirstOrDefault(a => a.AnswerOptionsId == id);
+            return _context.Set<AnswerOptions>().FirstOrDefault(a => a.AnswerOptionsId == id);
         }
 
         public void UpdateItem(int id, AnswerOptions item)

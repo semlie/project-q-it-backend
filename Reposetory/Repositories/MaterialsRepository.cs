@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public Materials AddItem(Materials item)
         {
-            _context.Materials.Add(item);
+            _context.Set<Materials>().Add(item);
             _context.save();
             return item;
         }
@@ -27,19 +27,19 @@ namespace Repository.Repositories
             var material = GetById(id);
             if (material != null)
             {
-                _context.Materials.Remove(material);
+                _context.Set<Materials>().Remove(material);
                 _context.save();
             }
         }
 
         public List<Materials> GetAll()
         {
-           return _context.Materials.ToList();  
+           return _context.Set<Materials>().ToList();  
         }
 
         public Materials GetById(int id)
         {
-            return _context.Materials.FirstOrDefault(m => m.MatId == id);
+            return _context.Set<Materials>().FirstOrDefault(m => m.MatId == id);
         }
 
         public void UpdateItem(int id, Materials item)

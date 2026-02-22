@@ -17,7 +17,7 @@ namespace Repository.Repositories
         }
         public Chapter AddItem(Chapter item)
         {
-            _context.Chapters.Add(item);
+            _context.Set<Chapter>().Add(item);
             _context.save();
             return item;
         }
@@ -27,19 +27,19 @@ namespace Repository.Repositories
             var chapter = GetById(id);
             if (chapter != null)
             {
-                _context.Chapters.Remove(chapter);
+                _context.Set<Chapter>().Remove(chapter);
                 _context.save();
             }
         }
 
         public List<Chapter> GetAll()
         {
-           return _context.Chapters.ToList();  
+           return _context.Set<Chapter>().ToList();  
         }
 
         public Chapter GetById(int id)
         {
-            return _context.Chapters.FirstOrDefault(c => c.ChapterId == id);
+            return _context.Set<Chapter>().FirstOrDefault(c => c.ChapterId == id);
         }
 
         public void UpdateItem(int id, Chapter item)
