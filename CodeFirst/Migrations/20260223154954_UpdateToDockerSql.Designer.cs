@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeFirst.Migrations
 {
     [DbContext(typeof(BDQit))]
-    [Migration("20260221201134_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260223154954_UpdateToDockerSql")]
+    partial class UpdateToDockerSql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -171,7 +171,15 @@ namespace CodeFirst.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

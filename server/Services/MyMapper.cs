@@ -11,16 +11,22 @@ namespace Service.Services
 {
     public class MyMapper :Profile
     {
-        string path=Directory.GetCurrentDirectory()+"\\images\\";
+        string path = Path.Combine(Directory.GetCurrentDirectory(), "images");
         public MyMapper() { 
         
             
             CreateMap<Users, UsersDto>().ForMember("Image",x=>x.MapFrom(y=>fromStringToByte(y.UserImageUrl)));
-            CreateMap<UsersDto, Users>().ForMember("UserImageUrl",x=>x.MapFrom(y=>y.FileImage.FileName));
+            CreateMap<UsersDto, Users>().ForMember("UserImageUrl",x=>x.MapFrom(y=>y.FileImage != null ? y.FileImage.FileName : string.Empty));
         }
-        public byte[] fromStringToByte(string mypath)
+        public byte[] fromStringToByte(string? mypath)
         {
-            return File.ReadAllBytes(path + mypath);
+            if (string.IsNullOrWhiteSpace(mypath))
+            {
+                return Array.Empty<byte>();
+            }
+
+            var fullPath = Path.Combine(path, mypath);
+            return File.Exists(fullPath) ? File.ReadAllBytes(fullPath) : Array.Empty<byte>();
         }
     }
 }

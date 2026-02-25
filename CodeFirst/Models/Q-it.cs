@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Repository.Entities;
 using Repository.interfaces;
 using System;
@@ -34,7 +35,21 @@ namespace CodeFirst.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseSqlServer("server=localhost;database=Q-itDB;trusted_connection=true;TrustServerCertificate=True");
-            optionsBuilder.UseSqlite("Data Source=/Users/semliebeskind/Documents/שנה ב/project-q-it/project-q-it-backend/CodeFirst/QitDB.db");
+            //optionsBuilder.UseSqlite("Data Source=/Users/semliebeskind/Documents/שנה ב/project-q-it/project-q-it-backend/CodeFirst/QitDB.db");
+            optionsBuilder.UseSqlServer("Server=localhost,1433;Database=Q-itDB;User Id=sa;Password=Password12345;TrustServerCertificate=True;");
         }
+      /*  protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+{
+    if (!optionsBuilder.IsConfigured)
+    {
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        optionsBuilder.UseSqlServer(connectionString);
+    }
+}*/
     }
 }

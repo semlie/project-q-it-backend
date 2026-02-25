@@ -14,6 +14,7 @@ namespace Service.Dto
         public required string UserName { get; set; }
         public required string UserEmail { get; set; }
         public required string Role { get; set; }
+        public int SchoolId { get; set; }
         public string? NameSchool { get; set; }
         public string? NameClass { get; set; }
          public byte[]? Image { get; set; } //התמונה כמחרוזת

@@ -10,10 +10,12 @@ namespace webApiProject.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IService<Users> service;
+        private readonly IWebHostEnvironment env;
         
-        public UsersController(IService<Users> service)
+        public UsersController(IService<Users> service, IWebHostEnvironment env)
         {
             this.service = service;
+            this.env = env;
         }
 
         [HttpGet]
@@ -73,11 +75,38 @@ namespace webApiProject.Controllers
             }
         }
         [HttpPost]
-        public ActionResult<Users> Post([FromBody] Users value)
+        public async Task<ActionResult<Users>> Post([FromForm] UsersDto value)
         {
             try
             {
-                var result = service.AddItem(value);
+                var imagePath = string.Empty;
+
+                if (value.FileImage is not null && value.FileImage.Length > 0)
+                {
+                    var imagesDirectory = Path.Combine(env.ContentRootPath, "images");
+                    Directory.CreateDirectory(imagesDirectory);
+
+                    var fileExtension = Path.GetExtension(value.FileImage.FileName);
+                    var newFileName = $"{Guid.NewGuid()}{fileExtension}";
+                    var fileFullPath = Path.Combine(imagesDirectory, newFileName);
+
+                    await using var stream = new FileStream(fileFullPath, FileMode.Create);
+                    await value.FileImage.CopyToAsync(stream);
+
+                    imagePath = Path.Combine("images", newFileName).Replace("\\", "/");
+                }
+
+                var user = new Users
+                {
+                    UserName = value.UserName,
+                    UserEmail = value.UserEmail,
+                    UserPassword = value.UserPassword,
+                    Role = value.Role,
+                    SchoolId = value.SchoolId,
+                    UserImageUrl = imagePath
+                };
+
+                var result = service.AddItem(user);
                 return CreatedAtAction(nameof(Get), new { id = result.UserId }, result);
             }
             catch (Exception ex)
