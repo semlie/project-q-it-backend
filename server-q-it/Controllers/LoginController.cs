@@ -27,18 +27,33 @@ namespace webApiProject.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] UserLogin user)
         {
-          var user1 =login.Authenticate(user);
-            if (user1 != null)
+            try
             {
-                
-                return Ok(GenerateToken(user1));
+                var user1 = login.Authenticate(user);
+                if (user1 != null)
+                {
+                    return Ok(GenerateToken(user1));
+                }
+                return BadRequest("user not found...");
             }
-            return BadRequest("user not found...");
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
         //יצירת טוקן
         private string GenerateToken(Users user1)
         {
-            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+            var jwtKey = config["Jwt:Key"];
+            var issuer = config["Jwt:Issuer"];
+            var audience = config["Jwt:Audience"];
+
+            if (string.IsNullOrWhiteSpace(jwtKey) || string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience))
+            {
+                throw new InvalidOperationException("JWT configuration is missing. Please set Jwt:Key, Jwt:Issuer and Jwt:Audience.");
+            }
+
+            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             //אלגוריתם להצפנה
             var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
             var claims = new[] {
@@ -48,7 +63,7 @@ namespace webApiProject.Controllers
             //new Claim("Id",user1.Id.ToString()),
             //new Claim(ClaimTypes.GivenName,user1.Name)
             };
-            var token = new JwtSecurityToken(config["Jwt:Issuer"], config["Jwt:Audience"],
+            var token = new JwtSecurityToken(issuer, audience,
                 claims,
                 expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: credentials);

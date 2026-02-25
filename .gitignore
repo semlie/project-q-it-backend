@@ -56,3 +56,33 @@ artifacts/
 .DS_Store
 Thumbs.db
 *.stackdump
+
+# Logs
+*.log
+logs/
+
+# Test / coverage outputs
+TestResults/
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Dotnet temp
+*.tmp
+*.temp
+*.cache
+
+# Environment / local secrets
+.env
+.env.*
+/appsettings.json
+appsettings.Local.json
+**/appsettings.Local.json
+
+# Runtime uploaded files
+server-q-it/images/

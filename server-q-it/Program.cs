@@ -1,18 +1,21 @@
 ﻿using CodeFirst.Models;
+using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Repository.interfaces;
 using Repository.Repositories;
 using Service.Dto;
 using Service.Interface;
 using Service.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // Register DbContext
-//builder.Services.AddDbContext<BDQit>(options =>
-   // options.UseSqlite("Data Source=../codefirst/database.db"));
-builder.Services.AddScoped<IContext, BDQit>();
+builder.Services.AddDbContext<BDQit>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IContext>(sp => sp.GetRequiredService<BDQit>());
 // Register AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // Register repositories and services
