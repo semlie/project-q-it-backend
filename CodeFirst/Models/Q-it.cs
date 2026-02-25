@@ -64,7 +64,7 @@ namespace CodeFirst.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseSqlServer("server=sql;database=Q-itDB;trusted_connection=true;TrustServerCertificate=True");
-            optionsBuilder.UseSqlite("Data Source=QitDB.db");
+            optionsBuilder.UseSqlServer("Server=.;Database=QitDB;Trusted_Connection=True;TrustServerCertificate=True;");
         }
     }
 }

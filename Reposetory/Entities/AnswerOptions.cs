@@ -17,6 +17,7 @@ namespace Repository.Entities
         public string Option { get; set; }
         public bool IsCorrect { get; set; }
         public string Description { get; set; }
+        //uju
 
     }
 }
