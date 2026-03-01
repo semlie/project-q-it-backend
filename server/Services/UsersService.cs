@@ -26,7 +26,7 @@ namespace Service.Services
 
         public void DeleteItem(int id)
         {
-            repository.GetById(id);
+            repository.DeleteItem(id);
         }
 
         public List<Users> GetAll()
@@ -36,12 +36,12 @@ namespace Service.Services
 
         public Users GetById(int id)
         {
-            throw new NotImplementedException();
+            return repository.GetById(id);
         }
 
         public void UpdateItem(int id, Users item)
         {
-            throw new NotImplementedException();
+            repository.UpdateItem(id, item);
         }
     }
 }

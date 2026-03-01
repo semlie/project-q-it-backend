@@ -38,5 +38,18 @@ namespace webApiProject.Controllers
         {
             service.DeleteItem(id);
         }
+        [HttpPost]
+        public ActionResult<Question> Post([FromBody] Question value)
+        {
+            try
+            {
+                var result = service.AddItem(value);
+                return CreatedAtAction(nameof(Get), new { id = result.QuestionId }, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

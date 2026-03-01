@@ -12,5 +12,7 @@ namespace Service.Interface
     public interface ILogin
     {
         public Users? Authenticate(UserLogin user);
+        public Users GetUserById(int id);
+
     }
 }

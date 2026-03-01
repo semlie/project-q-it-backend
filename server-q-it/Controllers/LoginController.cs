@@ -41,6 +41,14 @@ namespace webApiProject.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        [HttpGet("{token}")]
+        public Users Get(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var id = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            return login.GetUserById(int.Parse(id));
+        }
         //יצירת טוקן
         private string GenerateToken(Users user1)
         {
@@ -57,6 +65,7 @@ namespace webApiProject.Controllers
             //אלגוריתם להצפנה
             var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
             var claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier,user1.UserId.ToString()),
             new Claim(ClaimTypes.Name,user1.UserName),
             new Claim(ClaimTypes.Email,user1.UserEmail),
            new Claim(ClaimTypes.Role,user1.Role)

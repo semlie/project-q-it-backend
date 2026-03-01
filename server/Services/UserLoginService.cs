@@ -19,7 +19,11 @@ namespace Service.Services
         }
         public Users? Authenticate(UserLogin user)
         {
-            return _repository.GetAll().FirstOrDefault(x => x.UserEmail == user.UserEmail && x.UserName == user.UserName);
+            return _repository.GetAll().FirstOrDefault(x => x.UserEmail == user.UserEmail && x.UserPassword == user.UserPassword);
+        }
+        public Users GetUserById(int id)
+        {
+            return _repository.GetAll().FirstOrDefault(x => x.UserId == id);
         }
     }
 }

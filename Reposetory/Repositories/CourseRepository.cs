@@ -36,10 +36,10 @@ namespace Repository.Repositories
         {
            return _context.Set<Course>().ToList();  
         }
-
+    //החזרת קורס לפי מזהה של משתמש
         public Course GetById(int id)
         {
-            return _context.Set<Course>().FirstOrDefault(x => x.CourseId == id);
+            return _context.Set<Course>().FirstOrDefault(x => x.UserId == id);
         }
 
         public void UpdateItem(int id, Course item)

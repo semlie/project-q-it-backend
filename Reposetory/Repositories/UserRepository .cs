@@ -25,8 +25,12 @@ namespace Repository.Repositories
 
         public void DeleteItem(int id)
         {
-            _context.Set<Users>().Remove(GetById(id));
-            _context.save();
+            var user = GetById(id);
+            if (user != null)
+            {
+                _context.Set<Users>().Remove(user);
+                _context.save();
+            }
         }
 
         public List<Users> GetAll()
@@ -48,6 +52,8 @@ namespace Repository.Repositories
                 user.UserPassword = newItem.UserPassword;
                 user.UserEmail = newItem.UserEmail;
                 user.Role = newItem.Role;
+                user.UserImageUrl = newItem.UserImageUrl;
+                user.SchoolId = newItem.SchoolId;
                 _context.save();
             }
         }
