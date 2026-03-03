@@ -49,6 +49,7 @@ namespace Repository.Repositories
             {
                 question.ChapterId = item.ChapterId;
                 question.Questions = item.Questions;
+                question.Level = item.Level;
                 _context.save();
             }
         }

@@ -12,7 +12,9 @@ namespace Repository.Entities
     {
         [Key]
         public int QuestionId {  get; set; }
-        public string Questions { get; set; }
+        public required string Questions { get; set; }
+        [Range(1, 3, ErrorMessage = "Level must be 1, 2, or 3")]
+        public int Level { get; set; } 
         [ForeignKey("Chapter")]
         public int ChapterId { get; set; }
     }

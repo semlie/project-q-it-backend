@@ -28,9 +28,16 @@ namespace webApiProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public void Put([FromBody] Question value)
+        public IActionResult Put(int id, [FromBody] Question value)
         {
-            service.AddItem(value);
+            var existingQuestion = service.GetById(id);
+            if (existingQuestion == null)
+            {
+                return NotFound();
+            }
+
+            service.UpdateItem(id, value);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

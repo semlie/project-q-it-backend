@@ -51,5 +51,20 @@ namespace webApiProject.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        [HttpGet("course/{id}")]
+        public ActionResult<List<Chapter>> GetByIdCourse(int id)
+        {
+            try
+            {
+                var chapter = service.GetAll().Where(x => x.CourseId == id).ToList();
+                if (chapter == null || chapter.Count == 0)
+                    return NotFound($"Chapter with Course ID {id} not found");
+                return Ok(chapter);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

@@ -35,5 +35,16 @@ namespace CodeFirst.Models
         {
             SaveChanges();
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Question>()
+                .ToTable(tableBuilder =>
+                {
+                    tableBuilder.HasCheckConstraint("CK_Question_Level", "[Level] IN (1, 2, 3)");
+                });
+        }
     }
 }

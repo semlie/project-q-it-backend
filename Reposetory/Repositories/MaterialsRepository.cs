@@ -46,8 +46,11 @@ namespace Repository.Repositories
         {
             var material = GetById(id);
             if (material != null)
-            {     
-                material.UserId = item.UserId;
+            {
+                material.MatName = item.MatName;
+                material.MatDescription = item.MatDescription;
+                material.MatLink = item.MatLink;
+                material.CourseId = item.CourseId;
                 _context.save();
             }
         }

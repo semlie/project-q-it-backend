@@ -12,7 +12,10 @@ namespace Repository.Entities
     {
         [Key]
         public int MatId { get; set; }
-        [ForeignKey("Users")]
-        public int UserId { get; set; }
+        public required string MatName { get; set; }
+        public string? MatDescription { get; set; }
+        public required string MatLink { get; set; }
+        [ForeignKey("Course")]
+        public int CourseId { get; set; }
     }
 }
