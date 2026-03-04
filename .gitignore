@@ -50,3 +50,4 @@ appsettings.*.json
 # macOS
 .DS_Store
 server-q-it/appsettings.Local.json
+server-q-it/appsettings.Local.json
