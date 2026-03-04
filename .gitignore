@@ -14,80 +14,36 @@
 [Rr]eleases/
 x64/
 x86/
-build/
-bld/
 [Bb]in/
 [Oo]bj/
-
-# Visual Studio cache/options directory
-.vs/
-.vscode/
 
 # Database files
 *.db
 *.db-shm
 *.db-wal
 
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
+# Sensitive configuration files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
 
-# Auto generated files
-*.dbmdl
-*.jfm
-*.pfx
-*.publishsettings
+# Visual Studio cache/options directory
+.vs/
 
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
 
 # NuGet Packages
 *.nupkg
 **/packages/*
-!**/packages/build/
 
-# Visual Studio cache files
-project.lock.json
-project.fragment.lock.json
-artifacts/
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
 
-# Others
-.DS_Store
-Thumbs.db
-*.stackdump
-
-# Logs
-*.log
-logs/
-
-# Test / coverage outputs
-TestResults/
-coverage/
-coverage.*
-*.coverage
-*.coveragexml
-
-# JetBrains Rider
+# Rider
 .idea/
 *.sln.iml
 
-# Dotnet temp
-*.tmp
-*.temp
-*.cache
-
-# Environment / local secrets
-.env
-.env.*
-/appsettings.json
-appsettings.Local.json
-**/appsettings.Local.json
-
-# Runtime uploaded files
-server-q-it/images/
-server-q-it/materials/
-
-# Dotnet config files
-appsettings.Development.json
-appsettings.json
+# macOS
+.DS_Store
