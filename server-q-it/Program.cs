@@ -19,7 +19,7 @@ builder.Services.AddHttpClient("QuizClient", client =>
 {
     client.Timeout = TimeSpan.FromMinutes(5);
 });
-
+builder.Services.AddHttpClient();
 // Register DbContext
 builder.Services.AddDbContext<BDQit>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

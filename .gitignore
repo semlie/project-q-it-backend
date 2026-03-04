@@ -87,3 +87,7 @@ appsettings.Local.json
 # Runtime uploaded files
 server-q-it/images/
 server-q-it/materials/
+
+# Dotnet config files
+appsettings.Development.json
+appsettings.json

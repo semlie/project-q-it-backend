@@ -1,84 +1,122 @@
 using Microsoft.AspNetCore.Mvc;
-using Repository.Entities;
-using Service.Interface;
-using Microsoft.AspNetCore.Mvc;
-//using UglyToad.PdfPig;
 using System.Text;
-using System.Net.Http.Json;
+using System.Text.Json;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Presentation;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+
 namespace webApiProject.Controllers
 {
-[ApiController]
-[Route("api/[controller]")]
-public class QuizController : ControllerBase
-{
-    private readonly string _apiKey = "AIzaSyDFhyvraCA3Lw7nv1s5JrWk2l1zo6UkiLI";
-    private readonly HttpClient _httpClient;
-
-    public QuizController(IHttpClientFactory httpClientFactory)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class QuizController : ControllerBase
     {
-        _httpClient = httpClientFactory.CreateClient();
-    }
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-    [HttpPost("generate")]
-    public async Task<IActionResult> GenerateQuiz(IFormFile file)
-    {
-        if (file == null || file.Length == 0)
+        public QuizController(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            return BadRequest("No file was uploaded.");
+            _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
         }
 
-        try
+        [HttpPost("generate")]
+        public async Task<IActionResult> GenerateQuiz(IFormFile file)
         {
-            // 1. קריאת תוכן הקובץ (למשל אם זה קובץ טקסט פשוט)
-            using var reader = new StreamReader(file.OpenReadStream(), leaveOpen: false);
-            var fileContent = await reader.ReadToEndAsync();
-
-            if (string.IsNullOrWhiteSpace(fileContent))
+            try
             {
-                return BadRequest("Uploaded file is empty or unreadable as text.");
-            }
+                if (file == null || file.Length == 0) return BadRequest("No file uploaded");
 
-            // 2. בניית הבקשה ל-Gemini
-            var requestBody = new
-            {
-                contents = new[] {
-                    new { parts = new[] { 
-                        new { text = $"נתח את הטקסט הבא וצור 5 שאלות אמריקאיות בעברית בפורמט JSON: {fileContent}" } 
-                    } }
+                string extractedText = "";
+                var extension = Path.GetExtension(file.FileName).ToLower();
+
+                if (extension == ".pdf") extractedText = await ExtractTextFromPdf(file);
+                else if (extension == ".pptx") extractedText = await ExtractTextFromPptx(file);
+                else if (extension == ".txt")
+                {
+                    using var reader = new StreamReader(file.OpenReadStream());
+                    extractedText = await reader.ReadToEndAsync();
                 }
-            };
 
-            // 3. שליחה ל-API של Gemini
-            var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
-            var httpClient = new HttpClient
-            {
-                Timeout = TimeSpan.FromMinutes(5) // הגדל ל-5 דקות
-            };
-            var response = await httpClient.PostAsJsonAsync(apiUrl, requestBody);
+                if (string.IsNullOrWhiteSpace(extractedText)) return BadRequest("No text extracted");
 
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, errorContent);
+                var apiKey = _configuration["GeminiApiKey"];
+                var httpClient = _httpClientFactory.CreateClient();
+
+                // ----------------------------------------------------------------------------------
+                // שימוש במודל gemini-2.5-flash - כפי שמופיע ברשימה ששלחת בתמונה
+                // ----------------------------------------------------------------------------------
+                var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+
+                var requestBody = new
+                {
+                    contents = new[]
+                    {
+                        new {
+                            parts = new[] {
+                                new { text = $@"צור 5 שאלות אמריקאיות בעברית על הטקסט הבא. החזר אך ורק JSON נקי. 
+                                                מבנה: [{{""question"":""..."",""options"":[""..."",""..."",""..."",""...""],""correctAnswer"":""...""}}] 
+                                                טקסט: {extractedText.Substring(0, Math.Min(extractedText.Length, 5000))}" }
+                            }
+                        }
+                    },
+                    generationConfig = new {
+                        response_mime_type = "application/json"
+                    }
+                };
+
+                var response = await httpClient.PostAsync(apiUrl, new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json"));
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // אם מופיעה שגיאה 429, זה אומר שצריך לחכות דקה.
+                    return StatusCode((int)response.StatusCode, $"API Error: {responseString}");
+                }
+
+                using var doc = JsonDocument.Parse(responseString);
+                var aiText = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
+
+                return Content(aiText, "application/json", Encoding.UTF8);
             }
-
-            var result = await response.Content.ReadFromJsonAsync<dynamic>();
-
-            if (result == null)
+            catch (Exception ex)
             {
-                return StatusCode(502, "Gemini returned an empty response.");
+                return StatusCode(500, $"Internal Error: {ex.Message}");
             }
+        }
 
-            return Ok(result);
-        }
-        catch (TaskCanceledException ex)
+        private async Task<string> ExtractTextFromPdf(IFormFile file)
         {
-            return StatusCode(408, "Request timeout - please try with a smaller file or try again later");
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            stream.Position = 0;
+            using var pdfReader = new PdfReader(stream);
+            using var pdfDoc = new PdfDocument(pdfReader);
+            var text = new StringBuilder();
+            for (int i = 1; i <= pdfDoc.GetNumberOfPages(); i++) text.AppendLine(PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i)));
+            return text.ToString();
         }
-        catch (Exception ex)
+
+        private async Task<string> ExtractTextFromPptx(IFormFile file)
         {
-            return StatusCode(500, ex.Message);
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            stream.Position = 0;
+            var text = new StringBuilder();
+            using (var doc = PresentationDocument.Open(stream, false))
+            {
+                var part = doc.PresentationPart;
+                if (part?.Presentation?.SlideIdList != null)
+                {
+                    foreach (var slideId in part.Presentation.SlideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>())
+                    {
+                        var slide = (SlidePart)part.GetPartById(slideId.RelationshipId!);
+                        foreach (var t in slide.Slide.Descendants<DocumentFormat.OpenXml.Drawing.Text>()) text.AppendLine(t.Text);
+                    }
+                }
+            }
+            return text.ToString();
         }
     }
-}
 }
