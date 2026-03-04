@@ -10,8 +10,16 @@ using Service.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// הגדר HttpClient עם timeout ארוך יותר
+builder.Services.AddHttpClient("QuizClient", client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+});
+
 // Register DbContext
 builder.Services.AddDbContext<BDQit>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
