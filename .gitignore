@@ -26,6 +26,8 @@ x86/
 appsettings.json
 appsettings.Development.json
 appsettings.Production.json
+appsettings.Local.json
+appsettings.*.json
 
 # Visual Studio cache/options directory
 .vs/
