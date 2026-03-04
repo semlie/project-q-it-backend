@@ -11,8 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeFirst.Migrations
 {
     [DbContext(typeof(BDQit))]
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.Designer.cs
     [Migration("20260223174006_InitialCreate")]
     partial class InitialCreate
+========
+    [Migration("20260223154954_UpdateToDockerSql")]
+    partial class UpdateToDockerSql
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -133,14 +138,26 @@ namespace CodeFirst.Migrations
 
             modelBuilder.Entity("Repository.Entities.School", b =>
                 {
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.Designer.cs
                     b.Property<string>("NameSchool")
                         .HasColumnType("nvarchar(450)");
+========
+                    b.Property<int>("SchoolId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SchoolId"));
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.Designer.cs
 
                     b.Property<string>("NameClass")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("NameSchool");
+                    b.Property<string>("NameSchool")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SchoolId");
 
                     b.ToTable("School");
                 });
@@ -150,6 +167,7 @@ namespace CodeFirst.Migrations
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.Designer.cs
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
@@ -160,18 +178,42 @@ namespace CodeFirst.Migrations
                     b.Property<string>("NameSchool")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+========
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.Designer.cs
 
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.Designer.cs
+========
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("int");
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.Designer.cs
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.Designer.cs
+========
+
+                    b.Property<string>("UserImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.Designer.cs
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.Designer.cs
+========
+
+                    b.Property<string>("UserPassword")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.Designer.cs
 
                     b.HasKey("UserId");
 

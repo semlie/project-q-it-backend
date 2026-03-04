@@ -15,39 +15,75 @@ namespace webApiProject.Controllers
             this.service = service;
         }
 
-        // GET: api/<SchoolController>
         [HttpGet]
-        public List<School> Get()
+        public ActionResult<List<School>> Get()
         {
-            return service.GetAll();
+            try
+            {
+                return Ok(service.GetAll());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // GET api/<SchoolController>/5
         [HttpGet("{id}")]
-        public School Get(int id)
+        public ActionResult<School> Get(int id)
         {
-            return service.GetById(id);
+            try
+            {
+                var school = service.GetById(id);
+                if (school == null)
+                    return NotFound($"School with ID {id} not found");
+                return Ok(school);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // POST api/<SchoolController>
         [HttpPost]
-        public School Post([FromBody] School value)
+        public ActionResult<School> Post([FromBody] School value)
         {
-            return service.AddItem(value);
+            try
+            {
+                var result = service.AddItem(value);
+                return CreatedAtAction(nameof(Get), new { id = result.SchoolId }, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // PUT api/<SchoolController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] School value)
+        public ActionResult Put(int id, [FromBody] School value)
         {
-            service.UpdateItem(id, value);
+            try
+            {
+                service.UpdateItem(id, value);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // DELETE api/<SchoolController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
-            service.DeleteItem(id);
+            try
+            {
+                service.DeleteItem(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

@@ -14,45 +14,40 @@
 [Rr]eleases/
 x64/
 x86/
-build/
-bld/
 [Bb]in/
 [Oo]bj/
-
-# Visual Studio cache/options directory
-.vs/
-.vscode/
 
 # Database files
 *.db
 *.db-shm
 *.db-wal
 
-# User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
+# Sensitive configuration files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+appsettings.*.json
 
-# Auto generated files
-*.dbmdl
-*.jfm
-*.pfx
-*.publishsettings
+# Visual Studio cache/options directory
+.vs/
 
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
 
 # NuGet Packages
 *.nupkg
 **/packages/*
-!**/packages/build/
 
-# Visual Studio cache files
-project.lock.json
-project.fragment.lock.json
-artifacts/
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
 
-# Others
+# Rider
+.idea/
+*.sln.iml
+
+# macOS
 .DS_Store
-Thumbs.db
-*.stackdump
+server-q-it/appsettings.Local.json
+server-q-it/appsettings.Local.json

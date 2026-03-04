@@ -17,36 +17,80 @@ namespace webApiProject.Controllers
     public class CourseController : ControllerBase
     {
         private readonly IService<Course> service;
-        public CourseController(IService<Course> service )
+        public CourseController(IService<Course> service)
         {
             this.service = service;
         }
-        // GET: api/<LoginController>
+
         [HttpGet]
-        public List<Course> Get()
+        public ActionResult<List<Course>> Get()
         {
-            return service.GetAll();
+            try
+            {
+                return Ok(service.GetAll());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // GET api/<LoginController>/5
         [HttpGet("{id}")]
-        public Course Get(int id)
+        public ActionResult<Course> Get(int id)
         {
-            return service.GetById(id);
+            try
+            {
+                var course = service.GetById(id);
+                if (course == null)
+                    return NotFound($"Course with ID {id} not found");
+                return Ok(course);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // PUT api/<LoginController>/5
+        [HttpPost]
+        public ActionResult<Course> Post([FromBody] Course value)
+        {
+            try
+            {
+                var result = service.AddItem(value);
+                return CreatedAtAction(nameof(Get), new { id = result.CourseId }, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Course value)
+        public ActionResult Put(int id, [FromBody] Course value)
         {
-            service.UpdateItem(id,value);
+            try
+            {
+                service.UpdateItem(id, value);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        // DELETE api/<LoginController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(int id)
         {
-            service.DeleteItem(id);
+            try
+            {
+                service.DeleteItem(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

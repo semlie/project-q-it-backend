@@ -11,6 +11,10 @@ namespace CodeFirst.Models
 {
     public class BDQit:DbContext ,IContext
     {
+        public BDQit(DbContextOptions<BDQit> options) : base(options)
+        {
+        }
+
         public virtual DbSet<AnswerOptions> AnswerOptions { get; set; }
         public virtual DbSet<Chapter> Chapter { get; set; }
         public virtual DbSet<Course> Course { get; set; }
@@ -19,24 +23,28 @@ namespace CodeFirst.Models
         public virtual DbSet<Question> Question { get; set; }
         public virtual DbSet<School> School { get; set; }
 
-        IEnumerable<Chapter> IContext.Chapters => Chapter;
-        IEnumerable<Users> IContext.Users => Users;
-        IEnumerable<Course> IContext.Courses => Course;
-        IEnumerable<AnswerOptions> IContext.AnswerOptions => AnswerOptions;
-        IEnumerable<Question> IContext.Questions => Question;
-        IEnumerable<Materials> IContext.Materials => Materials;
-        IEnumerable<School> IContext.Schools => School;
+        ICollection<Chapter> IContext.Chapters => Chapter.ToList();
+        ICollection<Users> IContext.Users => Users.ToList();
+        ICollection<Course> IContext.Courses => Course.ToList();
+        ICollection<AnswerOptions> IContext.AnswerOptions => AnswerOptions.ToList();
+        ICollection<Question> IContext.Questions => Question.ToList();
+        ICollection<Materials> IContext.Materials => Materials.ToList();
+        ICollection<School> IContext.Schools => School.ToList();
 
         public void save()
         {
             SaveChanges();
         }
 
-        public void AddSchool(School school)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            School.Add(school);
-        }
+            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Question>()
+                .ToTable(tableBuilder =>
+                {
+                    tableBuilder.HasCheckConstraint("CK_Question_Level", "[Level] IN (1, 2, 3)");
+                });
         public void RemoveSchool(School school)
         {
             School.Remove(school);

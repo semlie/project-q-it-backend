@@ -5,7 +5,7 @@
 namespace CodeFirst.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpdateToDockerSql : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -86,12 +86,18 @@ namespace CodeFirst.Migrations
                 name: "School",
                 columns: table => new
                 {
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.cs
                     NameSchool = table.Column<string>(type: "nvarchar(450)", nullable: false),
+========
+                    SchoolId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NameSchool = table.Column<string>(type: "nvarchar(max)", nullable: false),
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.cs
                     NameClass = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_School", x => x.NameSchool);
+                    table.PrimaryKey("PK_School", x => x.SchoolId);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,9 +108,16 @@ namespace CodeFirst.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+<<<<<<<< HEAD:CodeFirst/Migrations/20260223174006_InitialCreate.cs
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NameSchool = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NameClass = table.Column<string>(type: "nvarchar(max)", nullable: false)
+========
+                    UserPassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SchoolId = table.Column<int>(type: "int", nullable: false)
+>>>>>>>> main:CodeFirst/Migrations/20260223154954_UpdateToDockerSql.cs
                 },
                 constraints: table =>
                 {

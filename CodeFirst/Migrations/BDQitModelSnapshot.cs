@@ -99,9 +99,25 @@ namespace CodeFirst.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MatId"));
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MatId"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MatDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MatLink")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MatName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("MatId");
 
@@ -118,6 +134,10 @@ namespace CodeFirst.Migrations
 
                     b.Property<int>("ChapterId")
                         .HasColumnType("int");
+                        .HasColumnType("int");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
 
                     b.Property<string>("Questions")
                         .IsRequired()
@@ -125,19 +145,32 @@ namespace CodeFirst.Migrations
 
                     b.HasKey("QuestionId");
 
-                    b.ToTable("Question");
+                    b.ToTable("Question", t =>
+                        {
+                            t.HasCheckConstraint("CK_Question_Level", "[Level] IN (1, 2, 3)");
+                        });
                 });
 
             modelBuilder.Entity("Repository.Entities.School", b =>
                 {
                     b.Property<string>("NameSchool")
                         .HasColumnType("nvarchar(450)");
+                    b.Property<int>("SchoolId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SchoolId"));
 
                     b.Property<string>("NameClass")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("NameSchool");
+                    b.Property<string>("NameSchool")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SchoolId");
 
                     b.ToTable("School");
                 });
@@ -150,23 +183,27 @@ namespace CodeFirst.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
-                    b.Property<string>("NameClass")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NameSchool")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

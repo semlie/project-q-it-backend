@@ -23,64 +23,60 @@ namespace webApiProject.Controllers
             this.login = login;
             this.config = configuration;
         }
-        // GET: api/<LoginController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<LoginController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/<LoginController>
         [HttpPost]
         public IActionResult Post([FromBody] UserLogin user)
         {
-          var user1 =login.Authenticate(user);
-            if (user1 != null)
+            try
             {
-                
-                return Ok(GenerateToken(user1));
+                var user1 = login.Authenticate(user);
+                if (user1 != null)
+                {
+                    return Ok(GenerateToken(user1));
+                }
+                return BadRequest("user not found...");
             }
-            return BadRequest("user not found...");
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("{token}")]
+        public Users Get(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = handler.ReadJwtToken(token);
+            var id = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+            return login.GetUserById(int.Parse(id));
         }
         //יצירת טוקן
         private string GenerateToken(Users user1)
         {
-            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+            var jwtKey = config["Jwt:Key"];
+            var issuer = config["Jwt:Issuer"];
+            var audience = config["Jwt:Audience"];
+
+            if (string.IsNullOrWhiteSpace(jwtKey) || string.IsNullOrWhiteSpace(issuer) || string.IsNullOrWhiteSpace(audience))
+            {
+                throw new InvalidOperationException("JWT configuration is missing. Please set Jwt:Key, Jwt:Issuer and Jwt:Audience.");
+            }
+
+            var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             //אלגוריתם להצפנה
             var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
             var claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier,user1.UserId.ToString()),
             new Claim(ClaimTypes.Name,user1.UserName),
             new Claim(ClaimTypes.Email,user1.UserEmail),
            new Claim(ClaimTypes.Role,user1.Role)
             //new Claim("Id",user1.Id.ToString()),
             //new Claim(ClaimTypes.GivenName,user1.Name)
             };
-            var token = new JwtSecurityToken(config["Jwt:Issuer"], config["Jwt:Audience"],
+            var token = new JwtSecurityToken(issuer, audience,
                 claims,
                 expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-
-
-        // PUT api/<LoginController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<LoginController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

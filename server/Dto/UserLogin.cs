@@ -8,7 +8,7 @@ namespace Service.Dto
 {
     public class UserLogin
     {
-        public required string UserName { get; set; }
-        public required string Email { get; set; }
+        public required string UserEmail { get; set; }
+        public required string UserPassword { get; set; }
     }
 }

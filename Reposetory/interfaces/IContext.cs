@@ -1,4 +1,5 @@
 ﻿using Repository.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +10,14 @@ namespace Repository.interfaces
 {
     public interface IContext
     {
-        public IEnumerable<School> Schools { get; }
-        public IEnumerable<Users> Users { get; }
-        public IEnumerable<Materials> Materials { get; }
-        public IEnumerable<Question> Questions { get; }
-        public IEnumerable<AnswerOptions> AnswerOptions { get; }
-        public IEnumerable<Chapter> Chapters { get; }
-        public IEnumerable<Course> Courses { get; }
-
+        public ICollection<School> Schools { get; }
+        public ICollection<Users> Users { get; }
+        public ICollection<Materials> Materials { get; }
+        public ICollection<Question> Questions { get; }
+        public ICollection<AnswerOptions> AnswerOptions { get; }
+        public ICollection<Chapter> Chapters { get; }
+        public ICollection<Course> Courses { get; }
+        public DbSet<T> Set<T>() where T : class;
         public void save();
-        public void AddSchool(School school);
-        public void RemoveSchool(School school);
-        public void AddCourse(Course course);
-        public void RemoveCourse(Course course);
-        public void AddUser(Users user);
-        public void RemoveUser(Users user);
     }
 }

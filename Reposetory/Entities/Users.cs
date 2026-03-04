@@ -12,12 +12,13 @@ namespace Repository.Entities
     {
         [Key]
         public int UserId { get; set; }
-        public string UserName { get; set; }
-        public string UserEmail { get; set; }
-        public string Role { get; set; }
+        public required string UserName { get; set; }
+        public required string UserEmail { get; set; }
+        public required string UserPassword { get; set; }
+        public required string Role { get; set; }
+        public string  UserImageUrl { get; set; }
+
         [ForeignKey("School")]
-        public string NameSchool { get; set; }
-        [ForeignKey("School")]
-        public string NameClass { get; set; }
+        public int SchoolId { get; set; }
     }
 }
