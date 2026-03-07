@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
-using Service.Dto;
 using Service.Interface;
+using Service.Dto;
 
 namespace webApiProject.Controllers
 {
@@ -17,7 +17,6 @@ namespace webApiProject.Controllers
             this.service = service;
             this.env = env;
         }
-
         [HttpGet]
         public ActionResult<List<Users>> Get()
         {
@@ -131,18 +130,25 @@ namespace webApiProject.Controllers
 
                     imagePath = Path.Combine("images", newFileName).Replace("\\", "/");
                 }
-
                 var user = new Users
                 {
+                    UserPassword = value.UserPassword,
                     UserName = value.UserName,
                     UserEmail = value.UserEmail,
-                    UserPassword = value.UserPassword,
                     Role = value.Role,
-                    SchoolId = value.SchoolId,
+                    ClassId = value.ClassId,
                     UserImageUrl = imagePath
                 };
 
                 var result = service.AddItem(user);
+                
+                // אם זה מורה והוא צריך להיות מקושר לכיתות
+                if (value.Role == "Teacher" && value.ClassIds != null && value.ClassIds.Any())
+                {
+                    // כאן תצטרך להוסיף לוגיקה ליצירת TeacherClass
+                    // אבל כרגע נשמור רק את המשתמש
+                }
+                
                 return CreatedAtAction(nameof(Get), new { id = result.UserId }, result);
             }
             catch (Exception ex)

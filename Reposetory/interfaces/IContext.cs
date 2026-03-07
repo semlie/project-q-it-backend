@@ -17,6 +17,8 @@ namespace Repository.interfaces
         public ICollection<AnswerOptions> AnswerOptions { get; }
         public ICollection<Chapter> Chapters { get; }
         public ICollection<Course> Courses { get; }
+        public ICollection<Classes> Classes { get; }
+        public ICollection<TeacherClass> TeacherClasses { get; }
         public DbSet<T> Set<T>() where T : class;
         public void save();
     }

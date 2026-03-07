@@ -42,6 +42,10 @@ builder.Services.AddScoped<IRepository<AnswerOptions>, AnswerOptionRepository>()
 builder.Services.AddScoped<IService<AnswerOptions>, AnswerOptionsService>();
 builder.Services.AddScoped<IRepository<Chapter>, ChapterRepository>();
 builder.Services.AddScoped<IService<Chapter>, ChapterService>();
+builder.Services.AddScoped<IRepository<Classes>, ClassRepository>();
+builder.Services.AddScoped<IService<Classes>, ClassService>();
+builder.Services.AddScoped<IRepository<TeacherClass>, TeacherClassRepository>();
+builder.Services.AddScoped<IService<TeacherClass>, TeacherClassService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {

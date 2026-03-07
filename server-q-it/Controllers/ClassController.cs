@@ -5,15 +5,15 @@ namespace webApiProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SchoolController : ControllerBase
+    public class ClassController : ControllerBase
     {
-        private readonly IService<School> service;
-        public SchoolController(IService<School> service)
+        private readonly IService<Classes> service;
+        public ClassController(IService<Classes> service)
         {
             this.service = service;
         }
         [HttpGet]
-        public ActionResult<List<School>> Get()
+        public ActionResult<List<Classes>> Get()
         {
             try
             {
@@ -25,14 +25,14 @@ namespace webApiProject.Controllers
             }
         }
         [HttpGet("{id}")]
-        public ActionResult<School> Get(int id)
+        public ActionResult<Classes> Get(int id)
         {
             try
             {
-                var school = service.GetById(id);
-                if (school == null)
-                    return NotFound($"School with ID {id} not found");
-                return Ok(school);
+                var classItem = service.GetById(id);
+                if (classItem == null)
+                    return NotFound($"Class with ID {id} not found");
+                return Ok(classItem);
             }
             catch (Exception ex)
             {
@@ -40,12 +40,12 @@ namespace webApiProject.Controllers
             }
         }
         [HttpPost]
-        public ActionResult<School> Post([FromBody] School value)
+        public ActionResult<Classes> Post([FromBody] Classes value)
         {
             try
             {
                 var result = service.AddItem(value);
-                return CreatedAtAction(nameof(Get), new { id = result.SchoolId }, result);
+                return CreatedAtAction(nameof(Get), new { id = result.ClassId }, result);
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace webApiProject.Controllers
             }
         }
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] School value)
+        public ActionResult Put(int id, [FromBody] Classes value)
         {
             try
             {
@@ -78,36 +78,19 @@ namespace webApiProject.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("{schoolName}/classes")]
-        public ActionResult<List<School>> GetClassesBySchoolName(string schoolName)
-        {
-            try
-            {
-                var school = service.GetAll().Where(s => s.NameSchool.Equals(schoolName, StringComparison.OrdinalIgnoreCase));
-                if (school == null || !school.Any())
-                    return NotFound($"School with name {schoolName} not found");
-                return Ok(school);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
         [HttpGet("unique-names")]
 public ActionResult GetUniqName()
 {
     try
     {
-        // אנחנו שולפים את כל בתי הספר, מבצעים Distinct לפי השם
-        // ומחזירים אובייקט שמכיל גם מזהה וגם שם
-        var uniqueSchools = service.GetAll()
-            .GroupBy(s => s.NameSchool)
-            .Select(g => g.First()) // לוקחים את האובייקט הראשון מכל קבוצת שמות זהה
+        var uniqueClasses = service.GetAll()
+            .GroupBy(c => c.NameClass)
+            .Select(g => g.First())
             .Select(s => new { 
-                Id = s.SchoolId, 
-                NameSchool = s.NameSchool 
+                Id = s.ClassId, 
+                NameClass = s.NameClass 
             }).ToList();
-        return Ok(uniqueSchools);
+        return Ok(uniqueClasses);
     }
     catch (Exception ex)
     {

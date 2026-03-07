@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeFirst.Migrations
 {
     [DbContext(typeof(BDQit))]
-    [Migration("20260302141101_20260302113000_RestrictQuestionLevel")]
-    partial class _20260302113000_RestrictQuestionLevel
+    [Migration("20260307224343_AddClassesAndUpdateEntities")]
+    partial class AddClassesAndUpdateEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,13 +66,29 @@ namespace CodeFirst.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("ChapterId");
 
                     b.ToTable("Chapter");
+                });
+
+            modelBuilder.Entity("Repository.Entities.Classes", b =>
+                {
+                    b.Property<int>("ClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"));
+
+                    b.Property<string>("NameClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClassId");
+
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Repository.Entities.Course", b =>

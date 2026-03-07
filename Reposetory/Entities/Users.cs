@@ -15,10 +15,15 @@ namespace Repository.Entities
         public required string UserName { get; set; }
         public required string UserEmail { get; set; }
         public required string UserPassword { get; set; }
-        public required string Role { get; set; }
-        public string  UserImageUrl { get; set; }
-
-        [ForeignKey("School")]
-        public int SchoolId { get; set; }
+        public required string Role { get; set; } // "Student" או "Teacher"
+        public string? UserImageUrl { get; set; }
+        
+        // אם זה תלמיד - יש קישור לכיתה אחת
+        [ForeignKey("Class")]
+        public int? ClassId { get; set; }
+        public virtual Classes? Class { get; set; }
+        
+        // אם זה מורה - יש קישור לכמה כיתות (Many-to-Many)
+        public virtual ICollection<TeacherClass> TeacherClasses { get; set; } = new List<TeacherClass>();
     }
 }

@@ -6,12 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace CodeFirst.Models
 {
     public class BDQit:DbContext ,IContext
     {
         public BDQit(DbContextOptions<BDQit> options) : base(options)
+        {
+        }
+
+        public BDQit() : base()
         {
         }
 
@@ -22,6 +28,8 @@ namespace CodeFirst.Models
         public virtual DbSet<Materials> Materials { get; set; }
         public virtual DbSet<Question> Question { get; set; }
         public virtual DbSet<School> School { get; set; }
+        public virtual DbSet<Classes> Classes { get; set; }
+        public virtual DbSet<TeacherClass> TeacherClass { get; set; }
 
         ICollection<Chapter> IContext.Chapters => Chapter.ToList();
         ICollection<Users> IContext.Users => Users.ToList();
@@ -30,6 +38,8 @@ namespace CodeFirst.Models
         ICollection<Question> IContext.Questions => Question.ToList();
         ICollection<Materials> IContext.Materials => Materials.ToList();
         ICollection<School> IContext.Schools => School.ToList();
+        ICollection<Classes> IContext.Classes => Classes.ToList();
+        ICollection<TeacherClass> IContext.TeacherClasses => TeacherClass.ToList();
 
         public void save()
         {
@@ -39,6 +49,26 @@ namespace CodeFirst.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // הגדרת יחס Many-to-Many בין מורים לכיתות
+            modelBuilder.Entity<TeacherClass>()
+                .HasOne(tc => tc.Teacher)
+                .WithMany(t => t.TeacherClasses)
+                .HasForeignKey(tc => tc.TeacherId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TeacherClass>()
+                .HasOne(tc => tc.Class)
+                .WithMany(c => c.TeacherClasses)
+                .HasForeignKey(tc => tc.ClassId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // הגדרת יחס One-to-Many בין כיתה לתלמידים
+            modelBuilder.Entity<Users>()
+                .HasOne(u => u.Class)
+                .WithMany(c => c.Students)
+                .HasForeignKey(u => u.ClassId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Question>()
                 .ToTable(tableBuilder =>

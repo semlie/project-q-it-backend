@@ -42,14 +42,13 @@ namespace Repository.Repositories
             return _context.Set<Chapter>().FirstOrDefault(c => c.ChapterId == id);
         }
 
-        public void UpdateItem(int id, Chapter item)
+        public void UpdateItem(int id, Chapter newItem)
         {
             var chapter = GetById(id);
             if (chapter != null)
             {
-                chapter.Name = item.Name;
-                chapter.Password = item.Password;
-                chapter.CourseId = item.CourseId;
+                chapter.Name = newItem.Name;
+                chapter.CourseId = newItem.CourseId;
                 _context.save();
             }
         }

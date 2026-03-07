@@ -49,11 +49,10 @@ namespace Repository.Repositories
             if (user != null)
             {
                 user.UserName = newItem.UserName;
-                user.UserPassword = newItem.UserPassword;
                 user.UserEmail = newItem.UserEmail;
                 user.Role = newItem.Role;
                 user.UserImageUrl = newItem.UserImageUrl;
-                user.SchoolId = newItem.SchoolId;
+                user.ClassId = newItem.ClassId;
                 _context.save();
             }
         }

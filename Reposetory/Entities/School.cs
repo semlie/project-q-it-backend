@@ -15,6 +15,5 @@ namespace Repository.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SchoolId { get; set; }
         public required string NameSchool { get; set; }
-        public required string NameClass { get; set; }
     }
 }

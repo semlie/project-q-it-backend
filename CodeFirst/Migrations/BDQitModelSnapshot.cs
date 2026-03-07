@@ -63,13 +63,31 @@ namespace CodeFirst.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("ChapterId");
 
                     b.ToTable("Chapter");
+                });
+
+            modelBuilder.Entity("Repository.Entities.Classes", b =>
+                {
+                    b.Property<int>("ClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassId"));
+
+                    b.Property<string>("NameClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SchoolId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ClassId");
+
+                    b.HasIndex("SchoolId");
+
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Repository.Entities.Course", b =>
@@ -153,10 +171,6 @@ namespace CodeFirst.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SchoolId"));
 
-                    b.Property<string>("NameClass")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NameSchool")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -164,6 +178,29 @@ namespace CodeFirst.Migrations
                     b.HasKey("SchoolId");
 
                     b.ToTable("School");
+                });
+
+            modelBuilder.Entity("Repository.Entities.TeacherClass", b =>
+                {
+                    b.Property<int>("TeacherClassId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TeacherClassId"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TeacherClassId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeacherClass");
                 });
 
             modelBuilder.Entity("Repository.Entities.Users", b =>
@@ -174,19 +211,18 @@ namespace CodeFirst.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
+                    b.Property<int?>("ClassId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SchoolId")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
@@ -199,7 +235,61 @@ namespace CodeFirst.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("ClassId");
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Repository.Entities.Classes", b =>
+                {
+                    b.HasOne("Repository.Entities.School", "School")
+                        .WithMany()
+                        .HasForeignKey("SchoolId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("School");
+                });
+
+            modelBuilder.Entity("Repository.Entities.TeacherClass", b =>
+                {
+                    b.HasOne("Repository.Entities.Classes", "Class")
+                        .WithMany("TeacherClasses")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Repository.Entities.Users", "Teacher")
+                        .WithMany("TeacherClasses")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("Repository.Entities.Users", b =>
+                {
+                    b.HasOne("Repository.Entities.Classes", "Class")
+                        .WithMany("Students")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Class");
+                });
+
+            modelBuilder.Entity("Repository.Entities.Classes", b =>
+                {
+                    b.Navigation("Students");
+
+                    b.Navigation("TeacherClasses");
+                });
+
+            modelBuilder.Entity("Repository.Entities.Users", b =>
+                {
+                    b.Navigation("TeacherClasses");
                 });
 #pragma warning restore 612, 618
         }

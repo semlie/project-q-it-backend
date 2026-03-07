@@ -26,11 +26,14 @@ namespace webApiProject.Controllers
         {
             try
             {
-                if (file == null || file.Length == 0) return BadRequest("No file uploaded");
+                // 1. בדיקת קובץ
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file uploaded");
 
                 string extractedText = "";
                 var extension = Path.GetExtension(file.FileName).ToLower();
 
+                // 2. חילוץ טקסט (PDF, PPTX, TXT)
                 if (extension == ".pdf") extractedText = await ExtractTextFromPdf(file);
                 else if (extension == ".pptx") extractedText = await ExtractTextFromPptx(file);
                 else if (extension == ".txt")
@@ -38,16 +41,18 @@ namespace webApiProject.Controllers
                     using var reader = new StreamReader(file.OpenReadStream());
                     extractedText = await reader.ReadToEndAsync();
                 }
+                else return BadRequest("Unsupported file type. Use PDF, PPTX or TXT.");
 
-                if (string.IsNullOrWhiteSpace(extractedText)) return BadRequest("No text extracted");
+                if (string.IsNullOrWhiteSpace(extractedText))
+                    return BadRequest("No text extracted from the file.");
 
+                // 3. הגדרות API
                 var apiKey = _configuration["GeminiApiKey"];
                 var httpClient = _httpClientFactory.CreateClient();
+                httpClient.Timeout = TimeSpan.FromMinutes(3);
 
-                // ----------------------------------------------------------------------------------
-                // שימוש במודל gemini-2.5-flash - כפי שמופיע ברשימה ששלחת בתמונה
-                // ----------------------------------------------------------------------------------
-                var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+                // שימוש במודל שביקשת: gemini-3.1-flash-lite-preview
+                var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key={apiKey}";
 
                 var requestBody = new
                 {
@@ -55,36 +60,77 @@ namespace webApiProject.Controllers
                     {
                         new {
                             parts = new[] {
-                                new { text = $@"צור 5 שאלות אמריקאיות בעברית על הטקסט הבא. החזר אך ורק JSON נקי. 
-                                                מבנה: [{{""question"":""..."",""options"":[""..."",""..."",""..."",""...""],""correctAnswer"":""...""}}] 
-                                                טקסט: {extractedText.Substring(0, Math.Min(extractedText.Length, 5000))}" }
+                                new { text = $@"צור 5 שאלות אמריקאיות בעברית על בסיס הטקסט הבא.
+
+חובה להחזיר JSON תקין בלבד בפורמט הבא:
+{{
+  ""quizTitle"": ""כותרת המבחן"",
+  ""questions"": [
+    {{
+      ""questionId"": 1,
+      ""questionText"": ""טקסט השאלה"",
+      ""options"": [
+        {{""optionId"": ""A"", ""optionText"": ""תשובה א""}},
+        {{""optionId"": ""B"", ""optionText"": ""תשובה ב""}},
+        {{""optionId"": ""C"", ""optionText"": ""תשובה ג""}},
+        {{""optionId"": ""D"", ""optionText"": ""תשובה ד""}}
+      ],
+      ""correctAnswerId"": ""A"",
+      ""explanation"": ""הסבר לתשובה הנכונה""
+    }}
+  ]
+}}
+דרישות:
+1. questionId - מספר סידורי מ-1 עד 5
+2. optionId - A, B, C, או D
+3. correctAnswerId - חייב להיות אחד מה-optionId
+4. כל השדות חובה 
+5. ללא טקסט נוסף, רק JSON
+הטקסט:
+{extractedText.Substring(0, Math.Min(extractedText.Length, 5000))}"}
                             }
                         }
                     },
                     generationConfig = new {
-                        response_mime_type = "application/json"
+                        response_mime_type = "application/json" // מבטיח קבלת JSON תקין מהמודל
                     }
                 };
 
+                // 4. שליחת הבקשה
                 var response = await httpClient.PostAsync(apiUrl, new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json"));
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    // אם מופיעה שגיאה 429, זה אומר שצריך לחכות דקה.
-                    return StatusCode((int)response.StatusCode, $"API Error: {responseString}");
+                    return StatusCode((int)response.StatusCode, $"Gemini API Error: {responseString}");
                 }
 
+                // 5. עיבוד התשובה וחילוץ ה-JSON
                 using var doc = JsonDocument.Parse(responseString);
-                var aiText = doc.RootElement.GetProperty("candidates")[0].GetProperty("content").GetProperty("parts")[0].GetProperty("text").GetString();
+                var aiTextResponse = doc.RootElement
+                    .GetProperty("candidates")[0]
+                    .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
+                    .GetString();
 
-                return Content(aiText, "application/json", Encoding.UTF8);
+                if (string.IsNullOrEmpty(aiTextResponse))
+                    return StatusCode(500, "Empty response from AI");
+
+                // ניקוי Markdown במידה והמודל הוסיף (למרות הגדרת JSON Mode)
+                var cleanJson = aiTextResponse.Trim();
+                if (cleanJson.StartsWith("```json")) cleanJson = cleanJson.Replace("```json", "");
+                if (cleanJson.EndsWith("```")) cleanJson = cleanJson.Substring(0, cleanJson.Length - 3);
+
+                return Content(cleanJson.Trim(), "application/json", Encoding.UTF8);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal Error: {ex.Message}");
             }
         }
+
+        // --- פונקציות עזר לחילוץ טקסט ---
 
         private async Task<string> ExtractTextFromPdf(IFormFile file)
         {
@@ -94,7 +140,10 @@ namespace webApiProject.Controllers
             using var pdfReader = new PdfReader(stream);
             using var pdfDoc = new PdfDocument(pdfReader);
             var text = new StringBuilder();
-            for (int i = 1; i <= pdfDoc.GetNumberOfPages(); i++) text.AppendLine(PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i)));
+            for (int i = 1; i <= pdfDoc.GetNumberOfPages(); i++)
+            {
+                text.AppendLine(PdfTextExtractor.GetTextFromPage(pdfDoc.GetPage(i)));
+            }
             return text.ToString();
         }
 
@@ -112,7 +161,10 @@ namespace webApiProject.Controllers
                     foreach (var slideId in part.Presentation.SlideIdList.Elements<DocumentFormat.OpenXml.Presentation.SlideId>())
                     {
                         var slide = (SlidePart)part.GetPartById(slideId.RelationshipId!);
-                        foreach (var t in slide.Slide.Descendants<DocumentFormat.OpenXml.Drawing.Text>()) text.AppendLine(t.Text);
+                        foreach (var t in slide.Slide.Descendants<DocumentFormat.OpenXml.Drawing.Text>())
+                        {
+                            text.AppendLine(t.Text);
+                        }
                     }
                 }
             }

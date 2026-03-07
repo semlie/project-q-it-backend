@@ -48,7 +48,6 @@ namespace Repository.Repositories
             if (school != null)
             {
                 school.NameSchool = newItem.NameSchool;
-                school.NameClass = newItem.NameClass;
                 _context.save();
             }
             else
