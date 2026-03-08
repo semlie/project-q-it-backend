@@ -14,7 +14,7 @@ namespace Repository.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ClassId { get; set; }
-        public required string NameClass { get; set; }
+        public required string ClassName { get; set; }
         
         [ForeignKey("School")]
         public int SchoolId { get; set; }

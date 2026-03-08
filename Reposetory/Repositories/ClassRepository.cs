@@ -44,11 +44,11 @@ namespace Repository.Repositories
 
         public void UpdateItem(int id, Classes newItem)
         {
-            var classItem = GetById(id);
-            if (classItem != null)
+            var item = GetById(id);
+            if (item != null)
             {
-                classItem.NameClass = newItem.NameClass;
-                classItem.SchoolId = newItem.SchoolId;
+                item.ClassName = newItem.ClassName;
+                item.SchoolId = newItem.SchoolId;
                 _context.save();
             }
             else

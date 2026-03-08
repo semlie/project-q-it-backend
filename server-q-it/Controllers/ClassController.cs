@@ -44,7 +44,12 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var result = service.AddItem(value);
+                var entity = new Classes
+                {
+                    ClassName = value.ClassName,
+                    SchoolId = value.SchoolId
+                };
+                var result = service.AddItem(entity);
                 return CreatedAtAction(nameof(Get), new { id = result.ClassId }, result);
             }
             catch (Exception ex)
@@ -78,24 +83,20 @@ namespace webApiProject.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpGet("unique-names")]
-public ActionResult GetUniqName()
-{
-    try
-    {
-        var uniqueClasses = service.GetAll()
-            .GroupBy(c => c.NameClass)
-            .Select(g => g.First())
-            .Select(s => new { 
-                Id = s.ClassId, 
-                NameClass = s.NameClass 
-            }).ToList();
-        return Ok(uniqueClasses);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, ex.Message);
-    }
-}
+        [HttpGet("school/{id}")]
+        public ActionResult<List<Classes>> GetBySchoolId(int id)
+        {
+            try
+            {
+                var classes = service.GetAll().Where(c => c.SchoolId == id).ToList();
+                if (classes == null || classes.Count == 0)
+                    return NotFound($"No classes found for School with ID {id}");
+                return Ok(classes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
