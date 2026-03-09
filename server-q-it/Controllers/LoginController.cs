@@ -23,7 +23,7 @@ namespace webApiProject.Controllers
             this.login = login;
             this.config = configuration;
         }
-        // POST api/<LoginController>
+        
         [HttpPost]
         public IActionResult Post([FromBody] UserLogin user)
         {
@@ -34,22 +34,68 @@ namespace webApiProject.Controllers
                 {
                     return Ok(GenerateToken(user1));
                 }
-                return BadRequest("user not found...");
+                return BadRequest("Invalid credentials");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, "An error occurred during login");
             }
         }
+        
         [HttpGet("{token}")]
-        public Users Get(string token)
+        public IActionResult Get(string token)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = handler.ReadJwtToken(token);
-            var id = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
-            return login.GetUserById(int.Parse(id));
+            try
+            {
+                var jwtKey = config["Jwt:Key"];
+                var issuer = config["Jwt:Issuer"];
+                var audience = config["Jwt:Audience"];
+
+                if (string.IsNullOrWhiteSpace(jwtKey))
+                {
+                    return StatusCode(500, "JWT configuration is missing");
+                }
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                };
+
+                var handler = new JwtSecurityTokenHandler();
+                handler.ValidateToken(token, validationParameters, out var validatedToken);
+                
+                var jwtSecurityToken = validatedToken as JwtSecurityToken;
+                if (jwtSecurityToken == null)
+                {
+                    return Unauthorized("Invalid token");
+                }
+
+                var id = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+                var user = login.GetUserById(int.Parse(id));
+                
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+                
+                return Ok(user);
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return Unauthorized("Token has expired");
+            }
+            catch (Exception)
+            {
+                return Unauthorized("Invalid token");
+            }
         }
-        //יצירת טוקן
+        
         private string GenerateToken(Users user1)
         {
             var jwtKey = config["Jwt:Key"];
@@ -62,15 +108,12 @@ namespace webApiProject.Controllers
             }
 
             var securitykey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            //אלגוריתם להצפנה
             var credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
             var claims = new[] {
             new Claim(ClaimTypes.NameIdentifier,user1.UserId.ToString()),
             new Claim(ClaimTypes.Name,user1.UserName),
             new Claim(ClaimTypes.Email,user1.UserEmail),
            new Claim(ClaimTypes.Role,user1.Role)
-            //new Claim("Id",user1.Id.ToString()),
-            //new Claim(ClaimTypes.GivenName,user1.Name)
             };
             var token = new JwtSecurityToken(issuer, audience,
                 claims,

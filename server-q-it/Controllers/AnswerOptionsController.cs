@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
 using Service.Interface;
@@ -6,6 +7,7 @@ namespace webApiProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AnswerOptionsController : ControllerBase
     {
         private readonly IService<AnswerOptions> service;

@@ -1,0 +1,17 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=Q-itDB;User Id=sa;Password=your-password;TrustServerCertificate=True;"
+  },
+  "Jwt": {
+    "Key": "YourSuperSecretKeyThatIsAtLeast32Characters!",
+    "Issuer": "q-it-api",
+    "Audience": "q-it-client"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug",
+      "Microsoft.AspNetCore": "Information"
+    }
+  },
+  "GeminiApiKey": "your-gemini-api-key-here"
+}

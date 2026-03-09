@@ -1,32 +1,58 @@
-﻿using CodeFirst.Models;
+using CodeFirst.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Repository.Entities;
 using Repository.interfaces;
 using Repository.Repositories;
 using Service.Dto;
 using Service.Interface;
 using Service.Services;
+using System.Text;
+using webApiProject.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Q-it API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
-// הגדר HttpClient עם timeout ארוך יותר
 builder.Services.AddHttpClient("QuizClient", client =>
 {
     client.Timeout = TimeSpan.FromMinutes(5);
 });
 builder.Services.AddHttpClient();
-// Register DbContext
 builder.Services.AddDbContext<BDQit>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IContext>(sp => sp.GetRequiredService<BDQit>());
-// Register AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-// Register repositories and services
+
 builder.Services.AddScoped<IRepository<School>, SchoolRepository>();
 builder.Services.AddScoped<IService<School>, SchoolService>();
 builder.Services.AddScoped<IRepository<Course>, CourseRepository>();
@@ -46,7 +72,28 @@ builder.Services.AddScoped<IRepository<Classes>, ClassRepository>();
 builder.Services.AddScoped<IService<Classes>, ClassService>();
 builder.Services.AddScoped<IRepository<TeacherClass>, TeacherClassRepository>();
 builder.Services.AddScoped<IService<TeacherClass>, TeacherClassService>();
-// Add CORS
+
+var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "q-it-api";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "q-it-client";
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -56,10 +103,14 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
 var app = builder.Build();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors("AllowAll");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

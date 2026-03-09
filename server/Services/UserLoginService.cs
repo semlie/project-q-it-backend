@@ -19,8 +19,24 @@ namespace Service.Services
         }
         public Users? Authenticate(UserLogin user)
         {
-            return _repository.GetAll().FirstOrDefault(x => x.UserEmail == user.UserEmail && x.UserPassword == user.UserPassword);
+            var existingUser = _repository.GetAll().FirstOrDefault(x => x.UserEmail == user.UserEmail);
+            if (existingUser == null)
+            {
+                return null;
+            }
+            
+            if (BCrypt.Net.BCrypt.Verify(user.UserPassword, existingUser.UserPassword))
+            {
+                return existingUser;
+            }
+            return null;
         }
+        
+        public static string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
+        }
+        
         public Users GetUserById(int id)
         {
             return _repository.GetAll().FirstOrDefault(x => x.UserId == id);

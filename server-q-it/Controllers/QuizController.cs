@@ -34,8 +34,8 @@ namespace webApiProject.Controllers
                 var extension = Path.GetExtension(file.FileName).ToLower();
 
                 // 2. חילוץ טקסט (PDF, PPTX, TXT)
-                if (extension == ".pdf") extractedText = await ExtractTextFromPdf(file);
-                else if (extension == ".pptx") extractedText = await ExtractTextFromPptx(file);
+                if (extension == ".pdf") extractedText = await ExtractTextFromPdfAsync(file);
+                else if (extension == ".pptx") extractedText = await ExtractTextFromPptxAsync(file);
                 else if (extension == ".txt")
                 {
                     using var reader = new StreamReader(file.OpenReadStream());
@@ -132,7 +132,7 @@ namespace webApiProject.Controllers
 
         // --- פונקציות עזר לחילוץ טקסט ---
 
-        private async Task<string> ExtractTextFromPdf(IFormFile file)
+        private async Task<string> ExtractTextFromPdfAsync(IFormFile file)
         {
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
@@ -147,7 +147,7 @@ namespace webApiProject.Controllers
             return text.ToString();
         }
 
-        private async Task<string> ExtractTextFromPptx(IFormFile file)
+        private async Task<string> ExtractTextFromPptxAsync(IFormFile file)
         {
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);

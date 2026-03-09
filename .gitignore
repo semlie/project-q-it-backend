@@ -28,6 +28,7 @@ appsettings.Development.json
 appsettings.Production.json
 appsettings.Local.json
 appsettings.*.json
+.env
 
 # Visual Studio cache/options directory
 .vs/
