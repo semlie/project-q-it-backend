@@ -21,4 +21,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- חוסם קובץ migration שגוי עם '*' בשם -->
+    <Compile Remove="Migrations/*_FixTeacherClassOnlyV2.cs" />
+    <!-- אם הוסף ידנית Include לקובץ migration ספציפי - להסיר אותו -->
+  </ItemGroup>
+
 </Project>

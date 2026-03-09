@@ -36,18 +36,17 @@ namespace Repository.Repositories
         {
            return _context.Set<Course>().ToList();  
         }
-    //החזרת קורס לפי מזהה של משתמש
+    //החזרת קורס לפי מזהה של course ולא לפי מזהה של school
         public Course GetById(int id)
         {
-            return _context.Set<Course>().FirstOrDefault(x => x.UserId == id);
+            return _context.Set<Course>().FirstOrDefault(x => x.CourseId == id);
         }
 
         public void UpdateItem(int id, Course item)
         {
             var course =  GetById(id);
             course.CourseName = item.CourseName;
-            course.UserId = item.UserId;
-            course.UserId = item.UserId;
+            course.SchoolId = item.SchoolId;
             _context.save();
         }
     }

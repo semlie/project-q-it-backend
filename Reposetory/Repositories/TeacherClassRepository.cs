@@ -14,7 +14,9 @@ namespace Repository.Repositories
 
         public TeacherClass AddItem(TeacherClass item)
         {
-            _context.TeacherClasses.Add(item);
+            item.Teacher = null;
+            item.Class = null;
+            _context.Set<TeacherClass>().Add(item);
             _context.save();
             return item;
         }
@@ -24,19 +26,19 @@ namespace Repository.Repositories
             var item = GetById(id);
             if (item != null)
             {
-                _context.TeacherClasses.Remove(item);
+                _context.Set<TeacherClass>().Remove(item);
                 _context.save();
             }
         }
 
         public List<TeacherClass> GetAll()
         {
-            return _context.TeacherClasses.ToList();
+            return _context.Set<TeacherClass>().ToList();
         }
 
         public TeacherClass GetById(int id)
         {
-            return _context.TeacherClasses.FirstOrDefault(x => x.TeacherClassId == id);
+            return _context.Set<TeacherClass>().FirstOrDefault(x => x.TeacherClassId == id);
         }
 
         public void UpdateItem(int id, TeacherClass newItem)

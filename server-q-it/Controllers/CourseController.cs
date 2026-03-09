@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
 using Service.Interface;
 
@@ -13,6 +18,7 @@ namespace webApiProject.Controllers
         private readonly IService<Course> service;
         public CourseController(IService<Course> service)
         {
+            ArgumentNullException.ThrowIfNull(service);
             this.service = service;
         }
 
@@ -50,12 +56,30 @@ namespace webApiProject.Controllers
         {
             try
             {
+                value.CourseId = 0; // enforce insert
                 var result = service.AddItem(value);
                 return CreatedAtAction(nameof(Get), new { id = result.CourseId }, result);
             }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("SchoolId") == true || ex.Message.Contains("SchoolId"))
+            {
+                return StatusCode(500, "Database schema is out of sync (missing Course.SchoolId). Recreate migrations from current entities and run database update.");
+            }
+            catch (DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, $"Database update failed: {inner}");
+            }
+            catch (SqlException ex) when (ex.Number == 207 && ex.Message.Contains("SchoolId"))
+            {
+                return StatusCode(500, "Database schema is out of sync (missing Course.SchoolId). Recreate migrations from current entities and run database update.");
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, $"SQL error {ex.Number}: {ex.Message}");
+            }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, ex.InnerException?.Message ?? ex.Message);
             }
         }
 
@@ -80,6 +104,26 @@ namespace webApiProject.Controllers
             {
                 service.DeleteItem(id);
                 return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("school/{id}")]
+        public ActionResult<List<Course>> GetByIdSchool(int id)
+        {
+            try
+            {
+                var courses = service.GetAll().Where(x => x.SchoolId == id).ToList();
+                if (courses.Count == 0)
+                    return NotFound($"No courses found for School ID {id}");
+                return Ok(courses);
+            }
+            catch (SqlException ex) when (ex.Number == 207 && ex.Message.Contains("SchoolId"))
+            {
+                return StatusCode(500, "Database schema is out of sync (missing Course.SchoolId). Recreate migrations from current entities and run database update.");
             }
             catch (Exception ex)
             {
