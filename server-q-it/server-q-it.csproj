@@ -30,4 +30,15 @@
     <ProjectReference Include="..\server\server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Tests\**" />
+    <Content Remove="Tests\**" />
+    <EmbeddedResource Remove="Tests\**" />
+    <None Remove="Tests\**" />
+    <Compile Remove="E2ETests\**" />
+    <Content Remove="E2ETests\**" />
+    <EmbeddedResource Remove="E2ETests\**" />
+    <None Remove="E2ETests\**" />
+  </ItemGroup>
+
 </Project>

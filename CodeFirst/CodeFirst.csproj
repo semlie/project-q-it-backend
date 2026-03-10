@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -19,12 +19,11 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- חוסם קובץ migration שגוי עם '*' בשם -->
     <Compile Remove="Migrations/*_FixTeacherClassOnlyV2.cs" />
-    <!-- אם הוסף ידנית Include לקובץ migration ספציפי - להסיר אותו -->
   </ItemGroup>
 
 </Project>

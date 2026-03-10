@@ -13,6 +13,7 @@ using webApiProject.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
@@ -72,6 +73,7 @@ builder.Services.AddScoped<IRepository<Classes>, ClassRepository>();
 builder.Services.AddScoped<IService<Classes>, ClassService>();
 builder.Services.AddScoped<IRepository<TeacherClass>, TeacherClassRepository>();
 builder.Services.AddScoped<IService<TeacherClass>, TeacherClassService>();
+builder.Services.AddScoped<IStatsService, StatsService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "q-it-api";
@@ -114,3 +116,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
