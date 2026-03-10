@@ -86,7 +86,6 @@ async Task ClearDatabase(BDQit context)
     Console.WriteLine("Clearing existing data...");
 
     context.TestResults.RemoveRange(context.TestResults);
-    context.TestAttempts.RemoveRange(context.TestAttempts);
     context.AnswerOptions.RemoveRange(context.AnswerOptions);
     context.Question.RemoveRange(context.Question);
     context.Chapter.RemoveRange(context.Chapter);

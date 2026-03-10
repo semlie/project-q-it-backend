@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
 using Repository.interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace webApiProject.Controllers
 {
@@ -16,9 +18,17 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("chapter/{chapterId}")]
-        public ActionResult GetQuestionsForChapter(int chapterId)
+        [HttpGet("chapter/{chapterId}/level/{level}")]
+        public ActionResult GetQuestionsForChapter(int chapterId, int? level = null)
         {
-            var questions = _context.Set<Question>().Where(q => q.ChapterId == chapterId).ToList();
+            var query = _context.Set<Question>().Where(q => q.ChapterId == chapterId);
+            
+            if (level.HasValue)
+            {
+                query = query.Where(q => q.Level == level.Value);
+            }
+            
+            var questions = query.ToList();
             
             var questionList = new List<object>();
             
@@ -30,7 +40,7 @@ namespace webApiProject.Controllers
                         id = a.AnswerOptionsId,
                         text = a.Option,
                         isCorrect = a.IsCorrect,
-                        description = a.Description
+                        description = a.Description ?? ""
                     })
                     .ToList();
 
@@ -46,7 +56,7 @@ namespace webApiProject.Controllers
         }
 
         [HttpPost("submit-answer")]
-        public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerRequest request)
+        public IActionResult SubmitAnswer([FromBody] SubmitAnswerRequest request)
         {
             try
             {
@@ -59,20 +69,6 @@ namespace webApiProject.Controllers
 
                 var isCorrect = correctOption != null && 
                     correctOption.AnswerOptionsId.ToString() == request.SelectedAnswerId;
-
-                var attempt = new TestAttempt
-                {
-                    StudentId = request.StudentId,
-                    QuestionId = request.QuestionId,
-                    SelectedAnswer = request.SelectedAnswerId,
-                    CorrectAnswer = correctOption?.AnswerOptionsId.ToString() ?? "",
-                    IsCorrect = isCorrect,
-                    AnsweredAt = DateTime.Now,
-                    ChapterId = question.ChapterId
-                };
-
-                _context.Set<TestAttempt>().Add(attempt);
-                await Task.Run(() => _context.save());
 
                 return Ok(new {
                     isCorrect = isCorrect,
@@ -87,17 +83,10 @@ namespace webApiProject.Controllers
         }
 
         [HttpPost("finish")]
-        public async Task<IActionResult> FinishTest([FromBody] FinishTestRequest request)
+        public IActionResult FinishTest([FromBody] FinishTestRequest request)
         {
             try
             {
-                var attempts = _context.Set<TestAttempt>()
-                    .Where(a => a.StudentId == request.StudentId && a.ChapterId == request.ChapterId)
-                    .ToList();
-
-                var correctCount = attempts.Count(a => a.IsCorrect);
-                var totalCount = attempts.Count;
-
                 var chapter = _context.Set<Chapter>().FirstOrDefault(c => c.ChapterId == request.ChapterId);
                 var course = chapter != null ? _context.Set<Course>().FirstOrDefault(c => c.CourseId == chapter.CourseId) : null;
 
@@ -107,24 +96,21 @@ namespace webApiProject.Controllers
                     Subject = course?.CourseName ?? "Unknown",
                     Title = $"מבחן - {chapter?.Name ?? "פרק"}",
                     Date = DateTime.Now,
-                    Score = correctCount,
-                    MaxScore = totalCount > 0 ? totalCount : 1,
-                    Duration = request.Duration,
-                    ChapterId = request.ChapterId
+                    Score = request.CorrectCount,
+                    MaxScore = request.TotalQuestions > 0 ? request.TotalQuestions : 1,
+                    Duration = request.Duration
                 };
 
                 _context.Set<TestResult>().Add(testResult);
-                await Task.Run(() => _context.save());
+                _context.save();
 
-                var percentage = totalCount > 0 ? (correctCount * 100.0 / totalCount) : 0;
+                var percentage = request.TotalQuestions > 0 ? (request.CorrectCount * 100.0 / request.TotalQuestions) : 0;
 
                 return Ok(new
                 {
-                    score = correctCount,
-                    total = totalCount,
-                    percentage = percentage,
-                    correctAnswers = attempts.Where(a => a.IsCorrect).Select(a => a.QuestionId).ToList(),
-                    wrongAnswers = attempts.Where(a => !a.IsCorrect).Select(a => a.QuestionId).ToList()
+                    score = request.CorrectCount,
+                    total = request.TotalQuestions,
+                    percentage = percentage
                 });
             }
             catch (Exception ex)
@@ -168,5 +154,7 @@ namespace webApiProject.Controllers
         public int StudentId { get; set; }
         public int ChapterId { get; set; }
         public int Duration { get; set; }
+        public int CorrectCount { get; set; }
+        public int TotalQuestions { get; set; }
     }
 }
