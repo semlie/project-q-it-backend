@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
+using Repository.interfaces;
 using Service.Interface;
 using Service.Dto;
 using Service.Services;
@@ -13,13 +14,15 @@ namespace webApiProject.Controllers
     {
         private readonly IService<Users> service;
         private readonly IWebHostEnvironment env;
+        private readonly IContext _context;
         
         private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
         
-        public UsersController(IService<Users> service, IWebHostEnvironment env)
+        public UsersController(IService<Users> service, IWebHostEnvironment env, IContext context)
         {
             this.service = service;
             this.env = env;
+            this._context = context;
         }
         
         [HttpGet]
@@ -48,6 +51,63 @@ namespace webApiProject.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "An error occurred while retrieving the user");
+            }
+        }
+
+        [HttpGet("{id}/courses")]
+        public ActionResult<List<Course>> GetUserCourses(int id)
+        {
+            try
+            {
+                var user = service.GetById(id);
+                if (user == null)
+                    return NotFound($"User with ID {id} not found");
+
+                List<Course> courses;
+
+                if (user.Role == "Student")
+                {
+                    // Student: get courses from their single class's school
+                    if (user.ClassId.HasValue)
+                    {
+                        var classObj = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == user.ClassId);
+                        if (classObj != null)
+                        {
+                            courses = _context.Set<Course>().Where(c => c.SchoolId == classObj.SchoolId).ToList();
+                            return Ok(courses);
+                        }
+                    }
+                    return Ok(new List<Course>());
+                }
+                else // Teacher
+                {
+                    // Teacher: get courses from all their classes' schools
+                    var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == user.UserId).ToList();
+                    
+                    if (teacherClasses == null || !teacherClasses.Any())
+                        return Ok(new List<Course>());
+
+                    var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
+                    
+                    var schoolIds = _context.Set<Classes>()
+                        .Where(c => classIds.Contains(c.ClassId))
+                        .Select(c => c.SchoolId)
+                        .Distinct()
+                        .ToList();
+
+                    if (!schoolIds.Any())
+                        return Ok(new List<Course>());
+
+                    courses = _context.Set<Course>()
+                        .Where(c => schoolIds.Contains(c.SchoolId))
+                        .ToList();
+                    
+                    return Ok(courses);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving courses: {ex.Message}");
             }
         }
 
