@@ -20,6 +20,7 @@ namespace Repository.interfaces
         public ICollection<Classes> Classes { get; }
         public ICollection<TeacherClass> TeacherClasses { get; }
         public ICollection<TestResult> TestResults { get; }
+        public ICollection<TestAttempt> TestAttempts { get; }
         public DbSet<T> Set<T>() where T : class;
         public void save();
     }

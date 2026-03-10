@@ -31,6 +31,7 @@ namespace CodeFirst.Models
         public virtual DbSet<Classes> Classes { get; set; }
         public virtual DbSet<TeacherClass> TeacherClass { get; set; }
         public virtual DbSet<TestResult> TestResults { get; set; }
+        public virtual DbSet<TestAttempt> TestAttempts { get; set; }
 
         ICollection<Chapter> IContext.Chapters => Chapter.ToList();
         ICollection<Users> IContext.Users => Users.ToList();
@@ -42,6 +43,7 @@ namespace CodeFirst.Models
         ICollection<Classes> IContext.Classes => Classes.ToList();
         ICollection<TeacherClass> IContext.TeacherClasses => TeacherClass.ToList();
         ICollection<TestResult> IContext.TestResults => TestResults.ToList();
+        ICollection<TestAttempt> IContext.TestAttempts => TestAttempts.ToList();
 
         public void save()
         {

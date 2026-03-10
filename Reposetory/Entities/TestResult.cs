@@ -19,5 +19,9 @@ namespace Repository.Entities
         public int Score { get; set; }
         public int MaxScore { get; set; }
         public int Duration { get; set; }
+        
+        [ForeignKey("Chapter")]
+        public int? ChapterId { get; set; }
+        public virtual Chapter? Chapter { get; set; }
     }
 }
