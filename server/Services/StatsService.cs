@@ -182,20 +182,25 @@ namespace Service.Services
             var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == userId).ToList();
             var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
             var studentIds = _context.Set<Users>().Where(u => u.ClassId != null && classIds.Contains(u.ClassId ?? 0)).Select(u => u.UserId).ToList();
-            var subjects = _context.Set<TestResult>()
-                .Where(t => studentIds.Contains(t.StudentId))
+            
+            var testResults = _context.Set<TestResult>().Where(t => studentIds.Contains(t.StudentId)).ToList();
+            
+            var subjects = testResults
                 .Select(t => t.Subject)
                 .Distinct()
                 .ToList();
 
-            return subjects.Select(s => new TeacherSubjectItem
-            {
-                Subject = s,
-                Classes = teacherClasses.Count,
-                Students = _context.Set<Users>().Count(u => u.ClassId != null && classIds.Contains(u.ClassId ?? 0)),
-                AverageGrade = 0,
-                TestsCreated = 0,
-                Trend = "stable"
+            return subjects.Select(s => {
+                var subjectTests = testResults.Where(t => t.Subject == s).ToList();
+                return new TeacherSubjectItem
+                {
+                    Subject = s,
+                    Classes = teacherClasses.Count,
+                    Students = studentIds.Count(),
+                    AverageGrade = subjectTests.Count > 0 ? subjectTests.Average(t => (double)t.Score / t.MaxScore * 100) : 0,
+                    TestsCreated = subjectTests.Count,
+                    Trend = "stable"
+                };
             }).ToList();
         }
 

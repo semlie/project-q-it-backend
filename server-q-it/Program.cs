@@ -10,9 +10,13 @@ using Service.Interface;
 using Service.Services;
 using System.Text;
 using webApiProject.Middleware;
+using DotNetEnv;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
