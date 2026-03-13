@@ -46,7 +46,7 @@ namespace Repository.Repositories
         {
             var course =  GetById(id);
             course.CourseName = item.CourseName;
-            course.SchoolId = item.SchoolId;
+            course.ClassId = item.ClassId;
             _context.save();
         }
     }

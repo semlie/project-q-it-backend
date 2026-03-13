@@ -62,18 +62,10 @@ namespace webApiProject.Controllers
                 var result = service.AddItem(value);
                 return CreatedAtAction(nameof(Get), new { id = result.CourseId }, result);
             }
-            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("SchoolId") == true || ex.Message.Contains("SchoolId"))
-            {
-                return StatusCode(500, "Database schema is out of sync (missing Course.SchoolId). Recreate migrations from current entities and run database update.");
-            }
             catch (DbUpdateException ex)
             {
                 var inner = ex.InnerException?.Message ?? ex.Message;
                 return StatusCode(500, $"Database update failed: {inner}");
-            }
-            catch (SqlException ex) when (ex.Number == 207 && ex.Message.Contains("SchoolId"))
-            {
-                return StatusCode(500, "Database schema is out of sync (missing Course.SchoolId). Recreate migrations from current entities and run database update.");
             }
             catch (SqlException ex)
             {
@@ -113,19 +105,13 @@ namespace webApiProject.Controllers
             }
         }
 
-        [HttpGet("school/{id}")]
-        public ActionResult<List<Course>> GetByIdSchool(int id)
+        [HttpGet("class/{id}")]
+        public ActionResult<List<Course>> GetByClassId(int id)
         {
             try
             {
-                var courses = service.GetAll().Where(x => x.SchoolId == id).ToList();
-                if (courses.Count == 0)
-                    return NotFound($"No courses found for School ID {id}");
+                var courses = service.GetAll().Where(x => x.ClassId == id).ToList();
                 return Ok(courses);
-            }
-            catch (SqlException ex) when (ex.Number == 207 && ex.Message.Contains("SchoolId"))
-            {
-                return StatusCode(500, "Database schema is out of sync (missing Course.SchoolId). Recreate migrations from current entities and run database update.");
             }
             catch (Exception ex)
             {
@@ -134,4 +120,3 @@ namespace webApiProject.Controllers
         }
     }
 }
-

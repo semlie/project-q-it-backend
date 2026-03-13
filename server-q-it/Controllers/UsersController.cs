@@ -67,39 +67,26 @@ namespace webApiProject.Controllers
 
                 if (user.Role == "Student")
                 {
-                    // Student: get courses from their single class's school
+                    // Student: get courses from their single class
                     if (user.ClassId.HasValue)
                     {
-                        var classObj = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == user.ClassId);
-                        if (classObj != null)
-                        {
-                            courses = _context.Set<Course>().Where(c => c.SchoolId == classObj.SchoolId).ToList();
-                            return Ok(courses);
-                        }
+                        courses = _context.Set<Course>().Where(c => c.ClassId == user.ClassId.Value).ToList();
+                        return Ok(courses);
                     }
                     return Ok(new List<Course>());
                 }
                 else // Teacher
                 {
-                    // Teacher: get courses from all their classes' schools
+                    // Teacher: get courses from all their classes
                     var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == user.UserId).ToList();
                     
                     if (teacherClasses == null || !teacherClasses.Any())
                         return Ok(new List<Course>());
 
                     var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
-                    
-                    var schoolIds = _context.Set<Classes>()
-                        .Where(c => classIds.Contains(c.ClassId))
-                        .Select(c => c.SchoolId)
-                        .Distinct()
-                        .ToList();
-
-                    if (!schoolIds.Any())
-                        return Ok(new List<Course>());
 
                     courses = _context.Set<Course>()
-                        .Where(c => schoolIds.Contains(c.SchoolId))
+                        .Where(c => classIds.Contains(c.ClassId))
                         .ToList();
                     
                     return Ok(courses);

@@ -218,18 +218,15 @@ async Task SeedData(BDQit context)
     };
 
     var courses = new List<Course>();
-    foreach (var school in schools)
+    // Each class gets one course
+    foreach (var cls in classes)
     {
-        var numCourses = random.Next(2, 5);
-        var availableCourses = courseNames.OrderBy(_ => random.Next()).Take(numCourses).ToList();
-        foreach (var courseName in availableCourses)
+        var courseName = courseNames[random.Next(courseNames.Length)];
+        courses.Add(new Course
         {
-            courses.Add(new Course
-            {
-                CourseName = courseName,
-                SchoolId = school.SchoolId
-            });
-        }
+            CourseName = courseName,
+            ClassId = cls.ClassId
+        });
     }
     context.Course.AddRange(courses);
     await context.SaveChangesAsync();
