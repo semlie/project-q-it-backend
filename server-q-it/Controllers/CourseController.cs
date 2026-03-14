@@ -110,7 +110,12 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var courses = service.GetAll().Where(x => x.ClassId == id).ToList();
+                // Get the school for this class
+                var cls = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == id);
+                if (cls == null)
+                    return NotFound($"Class with ID {id} not found");
+                    
+                var courses = service.GetAll().Where(x => x.SchoolId == cls.SchoolId).ToList();
                 return Ok(courses);
             }
             catch (Exception ex)
