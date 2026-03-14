@@ -8,10 +8,10 @@ namespace Service.Interface
 {
     public interface IService<T>
     {
-        List<T> GetAll();
-        T GetById(int id);
-        T AddItem(T item);
-        void UpdateItem(int id,T item);
-        void DeleteItem(int id);
+        Task<List<T>> getAllAsync();
+        Task<T> getByIdAsync(int id);
+        Task<T> addItemAsync(T item);
+        Task updateItemAsync(int id,T item);
+        Task deleteItemAsync(int id);
     }
 }

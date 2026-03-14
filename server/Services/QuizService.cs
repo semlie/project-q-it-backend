@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Repository.Entities;
 using Repository.interfaces;
 using Service.Dto;
@@ -8,14 +9,29 @@ using Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Presentation;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
 using static Service.Interface.IQuizService;
 
 namespace Service.Services
 {
     public class QuizService : IQuizService
     {
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
+        
+        public QuizService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        {
+            _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
+        }
+        
        public async Task<IActionResult> GenerateQuiz([FromForm] GenerateQuizRequest request)
         {
             try
@@ -36,10 +52,10 @@ namespace Service.Services
                     using var reader = new StreamReader(file.OpenReadStream());
                     extractedText = await reader.ReadToEndAsync();
                 }
-                else return BadRequest("Unsupported file type. Use PDF, PPTX or TXT.");
+                else return new BadRequestObjectResult("Unsupported file type. Use PDF, PPTX or TXT.");
 
                 if (string.IsNullOrWhiteSpace(extractedText))
-                    return BadRequest("No text extracted from the file.");
+                    return new BadRequestObjectResult("No text extracted from the file.");
 
                 // 3. הגדרות API
                 var apiKey = _configuration["GeminiApiKey"];
@@ -116,7 +132,7 @@ namespace Service.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return StatusCode((int)response.StatusCode, $"Gemini API Error: {responseString}");
+                    return new ObjectResult($"Gemini API Error: {responseString}") { StatusCode = (int)response.StatusCode };
                 }
 
                 // 5. עיבוד התשובה וחילוץ ה-JSON
@@ -129,14 +145,14 @@ namespace Service.Services
                     .GetString();
 
                 if (string.IsNullOrEmpty(aiTextResponse))
-                    return StatusCode(500, "Empty response from AI");
+                    return new ObjectResult("Empty response from AI") { StatusCode = 500 };
 
                 // ניקוי Markdown במידה והמודל הוסיף (למרות הגדרת JSON Mode)
                 var cleanJson = aiTextResponse.Trim();
                 if (cleanJson.StartsWith("```json")) cleanJson = cleanJson.Replace("```json", "");
                 if (cleanJson.EndsWith("```")) cleanJson = cleanJson.Substring(0, cleanJson.Length - 3);
 
-                return Content(cleanJson.Trim(), "application/json", Encoding.UTF8);
+                return new ContentResult { Content = cleanJson.Trim(), ContentType = "application/json", StatusCode = 200 };
             }
             catch (Exception ex)
             {

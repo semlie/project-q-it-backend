@@ -14,14 +14,14 @@ namespace webApiProject.Controllers
             _quizService = quizService;
         }
         [HttpPost("generate")]
-        public async Task<IActionResult> Generate([FromBody] GenerateQuizRequest request)
+        public async Task<IActionResult> Generate([FromForm] GenerateQuizRequest request)
         {
-            if (request == null)
-                return BadRequest("Text is required for quiz generation.");
+            if (request?.File == null || request.File.Length == 0)
+                return BadRequest("File is required for quiz generation.");
             try
             {
-                var quiz = await _quizService.GenerateQuiz(request);
-                return Ok(quiz);
+                var result = await _quizService.GenerateQuiz(request);
+                return result;
             }
             catch (Exception ex)
             {

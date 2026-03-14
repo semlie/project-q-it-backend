@@ -78,6 +78,7 @@ builder.Services.AddScoped<IService<Classes>, ClassService>();
 builder.Services.AddScoped<IRepository<TeacherClass>, TeacherClassRepository>();
 builder.Services.AddScoped<IService<TeacherClass>, TeacherClassService>();
 builder.Services.AddScoped<IStatsService, StatsService>();
+builder.Services.AddScoped<IQuizService, QuizService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "q-it-api";
