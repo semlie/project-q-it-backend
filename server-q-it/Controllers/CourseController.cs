@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
+using Repository.interfaces;
 using Service.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,10 +19,13 @@ namespace webApiProject.Controllers
     public class CourseController : ControllerBase
     {
         private readonly IService<Course> service;
-        public CourseController(IService<Course> service)
+        private readonly IContext _context;
+        
+        public CourseController(IService<Course> service, IContext context)
         {
             ArgumentNullException.ThrowIfNull(service);
             this.service = service;
+            this._context = context;
         }
 
         [HttpGet]

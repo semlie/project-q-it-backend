@@ -68,6 +68,7 @@ namespace webApiProject.Controllers
   ""questions"": [
     {{
       ""questionId"": 1,
+      ""level"": 1||2||3, // 1-קל, 2-בינוני, 3-קשה
       ""questionText"": ""טקסט השאלה"",
       ""options"": [
         {{""optionId"": ""A"", ""optionText"": ""תשובה א""}},

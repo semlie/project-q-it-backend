@@ -225,7 +225,7 @@ async Task SeedData(BDQit context)
         courses.Add(new Course
         {
             CourseName = courseName,
-            ClassId = cls.ClassId
+            SchoolId = cls.SchoolId
         });
     }
     context.Course.AddRange(courses);
