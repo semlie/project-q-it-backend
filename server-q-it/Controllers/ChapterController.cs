@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
 using Service.Interface;
+using System.Collections.Generic;
 
 namespace webApiProject.Controllers
 {
@@ -10,45 +11,48 @@ namespace webApiProject.Controllers
     [Authorize]
     public class ChapterController : ControllerBase
     {
-        private readonly IService<Chapter> service;
-        
-        public ChapterController(IService<Chapter> service)
+        private readonly IService<Chapter> _chapterService;
+        private readonly IChapterActions _chapterActions;
+
+        public ChapterController(IService<Chapter> chapterService, IChapterActions chapterActions)
         {
-            this.service = service;
+            _chapterService = chapterService;
+            _chapterActions = chapterActions;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Chapter>>> Get()
         {
-            return Ok(await service.getAllAsync());
+            return Ok(await _chapterService.getAllAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Chapter>> Get(int id)
         {
-            var chapter = await service.getByIdAsync(id);
+            var chapter = await _chapterService.getByIdAsync(id);
             return Ok(chapter);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Put([FromBody] Chapter value)
         {
-            await service.addItemAsync(value);
+            await _chapterService.addItemAsync(value);
             return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            await service.deleteItemAsync(id);
+            await _chapterService.deleteItemAsync(id);
             return NoContent();
         }
+
         [HttpPost]
         public async Task<ActionResult<Chapter>> Post([FromBody] Chapter value)
         {
             try
             {
-                var result = await service.addItemAsync(value);
+                var result = await _chapterService.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.ChapterId }, result);
             }
             catch (Exception ex)
@@ -56,14 +60,13 @@ namespace webApiProject.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
         [HttpGet("course/{id}")]
         public async Task<ActionResult<List<Chapter>>> GetByIdCourse(int id)
         {
             try
             {
-                var chapter = (await service.getAllAsync()).Where(x => x.CourseId == id).ToList();
-                if (chapter == null || chapter.Count == 0)
-                    return NotFound($"Chapter with Course ID {id} not found");
+                var chapter = await _chapterActions.GetChaptersByCourseIdAsync(id);
                 return Ok(chapter);
             }
             catch (Exception ex)

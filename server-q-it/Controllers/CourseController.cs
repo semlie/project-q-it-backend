@@ -1,12 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Repository.Entities;
-using Repository.interfaces;
 using Service.Interface;
 
 namespace webApiProject.Controllers
@@ -16,14 +13,13 @@ namespace webApiProject.Controllers
     [Authorize]
     public class CourseController : ControllerBase
     {
-        private readonly IService<Course> service;
-        private readonly IContext _context;
-        
-        public CourseController(IService<Course> service, IContext context)
+        private readonly IService<Course> _courseService;
+        private readonly ICourseActions _courseActions;
+
+        public CourseController(IService<Course> courseService, ICourseActions courseActions)
         {
-            ArgumentNullException.ThrowIfNull(service);
-            this.service = service;
-            this._context = context;
+            _courseService = courseService;
+            _courseActions = courseActions;
         }
 
         [HttpGet]
@@ -31,7 +27,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                return Ok(await service.getAllAsync());
+                return Ok(await _courseService.getAllAsync());
             }
             catch (Exception ex)
             {
@@ -44,7 +40,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var course = await service.getByIdAsync(id);
+                var course = await _courseService.getByIdAsync(id);
                 if (course == null)
                     return NotFound($"Course with ID {id} not found");
                 return Ok(course);
@@ -61,7 +57,7 @@ namespace webApiProject.Controllers
             try
             {
                 value.CourseId = 0;
-                var result = await service.addItemAsync(value);
+                var result = await _courseService.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.CourseId }, result);
             }
             catch (DbUpdateException ex)
@@ -84,7 +80,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                await service.updateItemAsync(id, value);
+                await _courseService.updateItemAsync(id, value);
                 return NoContent();
             }
             catch (Exception ex)
@@ -98,7 +94,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                await service.deleteItemAsync(id);
+                await _courseService.deleteItemAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -112,11 +108,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var cls = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == id);
-                if (cls == null)
-                    return NotFound($"Class with ID {id} not found");
-                    
-                var courses = (await service.getAllAsync()).Where(x => x.SchoolId == cls.SchoolId).ToList();
+                var courses = await _courseActions.GetCoursesByClassIdAsync(id);
                 return Ok(courses);
             }
             catch (Exception ex)

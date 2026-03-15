@@ -59,26 +59,52 @@ builder.Services.AddScoped<IContext>(sp => sp.GetRequiredService<BDQit>());
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IRepository<School>, SchoolRepository>();
-builder.Services.AddScoped<IService<School>, SchoolService>();
+builder.Services.AddScoped<SchoolService>();
+builder.Services.AddScoped<IService<School>>(sp => sp.GetRequiredService<SchoolService>());
+
 builder.Services.AddScoped<IRepository<Course>, CourseRepository>();
-builder.Services.AddScoped<IService<Course>, CourseService>();
-builder.Services.AddScoped<IRepository<Users>, UserRepository>();
-builder.Services.AddScoped<IService<Users>, UsersService>();
-builder.Services.AddScoped<ILogin, UserLoginService>();
+builder.Services.AddScoped<CourseService>();
+builder.Services.AddScoped<IService<Course>>(sp => sp.GetRequiredService<CourseService>());
+builder.Services.AddScoped<ICourseActions>(sp => sp.GetRequiredService<CourseService>());
+
 builder.Services.AddScoped<IRepository<Materials>, MaterialsRepository>();
-builder.Services.AddScoped<IService<Materials>, MaterialsService>();
-builder.Services.AddScoped<IRepository<Question>, QuestionRepository>();
-builder.Services.AddScoped<IService<Question>, QuestionService>();
-builder.Services.AddScoped<IRepository<AnswerOptions>, AnswerOptionRepository>();
-builder.Services.AddScoped<IService<AnswerOptions>, AnswerOptionsService>();
-builder.Services.AddScoped<IRepository<Chapter>, ChapterRepository>();
-builder.Services.AddScoped<IService<Chapter>, ChapterService>();
+builder.Services.AddScoped<MaterialsService>();
+builder.Services.AddScoped<IService<Materials>>(sp => sp.GetRequiredService<MaterialsService>());
+
+builder.Services.AddScoped<IRepository<Users>, UserRepository>();
+builder.Services.AddScoped<UsersService>();
+builder.Services.AddScoped<IService<Users>>(sp => sp.GetRequiredService<UsersService>());
+builder.Services.AddScoped<IUserActions>(sp => sp.GetRequiredService<UsersService>());
+
+builder.Services.AddScoped<UserLoginService>();
+builder.Services.AddScoped<ILogin>(sp => sp.GetRequiredService<UserLoginService>());
+builder.Services.AddScoped<IAuthActions>(sp => sp.GetRequiredService<UserLoginService>());
+
 builder.Services.AddScoped<IRepository<Classes>, ClassRepository>();
-builder.Services.AddScoped<IService<Classes>, ClassService>();
+builder.Services.AddScoped<ClassService>();
+builder.Services.AddScoped<IService<Classes>>(sp => sp.GetRequiredService<ClassService>());
+builder.Services.AddScoped<IClassActions>(sp => sp.GetRequiredService<ClassService>());
+
+builder.Services.AddScoped<IRepository<Chapter>, ChapterRepository>();
+builder.Services.AddScoped<ChapterService>();
+builder.Services.AddScoped<IService<Chapter>>(sp => sp.GetRequiredService<ChapterService>());
+builder.Services.AddScoped<IChapterActions>(sp => sp.GetRequiredService<ChapterService>());
+
+builder.Services.AddScoped<IRepository<Question>, QuestionRepository>();
+builder.Services.AddScoped<QuestionService>();
+builder.Services.AddScoped<IService<Question>>(sp => sp.GetRequiredService<QuestionService>());
+
+builder.Services.AddScoped<IRepository<AnswerOptions>, AnswerOptionRepository>();
+builder.Services.AddScoped<AnswerOptionsService>();
+builder.Services.AddScoped<IService<AnswerOptions>>(sp => sp.GetRequiredService<AnswerOptionsService>());
+
 builder.Services.AddScoped<IRepository<TeacherClass>, TeacherClassRepository>();
-builder.Services.AddScoped<IService<TeacherClass>, TeacherClassService>();
+builder.Services.AddScoped<TeacherClassService>();
+builder.Services.AddScoped<IService<TeacherClass>>(sp => sp.GetRequiredService<TeacherClassService>());
+
 builder.Services.AddScoped<IStatsService, StatsService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
+builder.Services.AddScoped<ITestTakingActions, TestTakingService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "q-it-api";
@@ -112,6 +138,21 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        Console.WriteLine($"StackTrace: {ex.StackTrace}");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync($"Error: {ex.Message}");
+    }
+});
 
 app.UseSwagger();
 app.UseSwaggerUI();

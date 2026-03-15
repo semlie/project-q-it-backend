@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Entities;
-using Repository.interfaces;
-using Service.Interface;
 using Service.Dto;
-using Service.Services;
+using Service.Interface;
 
 namespace webApiProject.Controllers
 {
@@ -12,25 +10,21 @@ namespace webApiProject.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IService<Users> service;
-        private readonly IWebHostEnvironment env;
-        private readonly IContext _context;
-        
-        private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
-        
-        public UsersController(IService<Users> service, IWebHostEnvironment env, IContext context)
+        private readonly IService<Users> _usersService;
+        private readonly IUserActions _userActions;
+
+        public UsersController(IService<Users> usersService, IUserActions userActions)
         {
-            this.service = service;
-            this.env = env;
-            this._context = context;
+            _usersService = usersService;
+            _userActions = userActions;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult<List<Users>>> Get()
         {
             try
             {
-                return Ok(await service.getAllAsync());
+                return Ok(await _usersService.getAllAsync());
             }
             catch (Exception ex)
             {
@@ -43,7 +37,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var user = await service.getByIdAsync(id);
+                var user = await _usersService.getByIdAsync(id);
                 if (user == null)
                     return NotFound($"User with ID {id} not found");
                 return Ok(user);
@@ -59,46 +53,8 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var user = await service.getByIdAsync(id);
-                if (user == null)
-                    return NotFound($"User with ID {id} not found");
-
-                List<Course> courses;
-
-                if (user.Role == "Student")
-                {
-                    if (user.ClassId.HasValue)
-                    {
-                        var studentClass = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == user.ClassId.Value);
-                        if (studentClass != null)
-                        {
-                            courses = _context.Set<Course>().Where(c => c.SchoolId == studentClass.SchoolId).ToList();
-                            return Ok(courses);
-                        }
-                        return Ok(new List<Course>());
-                    }
-                    return Ok(new List<Course>());
-                }
-                else 
-                {
-                    var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == user.UserId).ToList();
-                    
-                    if (teacherClasses == null || !teacherClasses.Any())
-                        return Ok(new List<Course>());
-
-                    var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
-                    var classSchoolIds = _context.Set<Classes>()
-                        .Where(c => classIds.Contains(c.ClassId))
-                        .Select(c => c.SchoolId)
-                        .Distinct()
-                        .ToList();
-
-                    courses = _context.Set<Course>()
-                        .Where(c => classSchoolIds.Contains(c.SchoolId))
-                        .ToList();
-                    
-                    return Ok(courses);
-                }
+                var courses = await _userActions.GetUserCoursesAsync(id);
+                return Ok(courses);
             }
             catch (Exception ex)
             {
@@ -111,7 +67,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                await service.updateItemAsync(id, value);
+                await _usersService.updateItemAsync(id, value);
                 return NoContent();
             }
             catch (Exception ex)
@@ -125,7 +81,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                await service.deleteItemAsync(id);
+                await _usersService.deleteItemAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -139,28 +95,7 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var user = await service.getByIdAsync(id);
-                if (user == null)
-                {
-                    return NotFound($"User with ID {id} not found");
-                }
-
-                if (!string.IsNullOrWhiteSpace(user.UserImageUrl))
-                {
-                    var relativePath = user.UserImageUrl.Replace('/', Path.DirectorySeparatorChar);
-                    var fileFullPath = Path.Combine(env.ContentRootPath, relativePath);
-                    var imagesDirectory = Path.Combine(env.ContentRootPath, "images");
-
-                    if (Path.GetFullPath(fileFullPath).StartsWith(Path.GetFullPath(imagesDirectory), StringComparison.OrdinalIgnoreCase)
-                        && System.IO.File.Exists(fileFullPath))
-                    {
-                        System.IO.File.Delete(fileFullPath);
-                    }
-                }
-
-                user.UserImageUrl = string.Empty;
-                await service.updateItemAsync(id, user);
-
+                await _userActions.DeleteUserImageAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -178,43 +113,9 @@ namespace webApiProject.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                
-                var imagePath = string.Empty;
 
-                if (value.FileImage is not null && value.FileImage.Length > 0)
-                {
-                    var fileExtension = Path.GetExtension(value.FileImage.FileName).ToLower();
-                    if (!AllowedImageExtensions.Contains(fileExtension))
-                    {
-                        return BadRequest("Only image files (jpg, jpeg, png, gif) are allowed");
-                    }
-                    
-                    var imagesDirectory = Path.Combine(env.ContentRootPath, "images");
-                    Directory.CreateDirectory(imagesDirectory);
+                var result = await _userActions.CreateUserAsync(value);
 
-                    var newFileName = $"{Guid.NewGuid()}{fileExtension}";
-                    var fileFullPath = Path.Combine(imagesDirectory, newFileName);
-
-                    await using var stream = new FileStream(fileFullPath, FileMode.Create);
-                    await value.FileImage.CopyToAsync(stream);
-
-                    imagePath = Path.Combine("images", newFileName).Replace("\\", "/");
-                }
-                
-                var hashedPassword = UserLoginService.HashPassword(value.UserPassword);
-                
-                var user = new Users
-                {
-                    UserPassword = hashedPassword,
-                    UserName = value.UserName,
-                    UserEmail = value.UserEmail,
-                    Role = value.Role,
-                    ClassId = value.ClassId,
-                    UserImageUrl = imagePath
-                };
-
-                var result = await service.addItemAsync(user);
-                
                 return CreatedAtAction(nameof(Get), new { id = result.UserId }, result);
             }
             catch (Exception ex)
@@ -222,6 +123,5 @@ namespace webApiProject.Controllers
                 return StatusCode(500, "An error occurred while creating the user");
             }
         }
-
     }
 }

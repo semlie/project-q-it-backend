@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Repository.Entities;
-using Repository.interfaces;
-using Microsoft.EntityFrameworkCore;
+using Service.Interface;
 using System.Collections.Generic;
 
 namespace webApiProject.Controllers
@@ -10,71 +8,35 @@ namespace webApiProject.Controllers
     [ApiController]
     public class TestTakingController : ControllerBase
     {
-        private readonly IContext _context;
+        private readonly ITestTakingActions _testTakingActions;
 
-        public TestTakingController(IContext context)
+        public TestTakingController(ITestTakingActions testTakingActions)
         {
-            _context = context;
+            _testTakingActions = testTakingActions;
         }
 
         [HttpGet("chapter/{chapterId}")]
         [HttpGet("chapter/{chapterId}/level/{level}")]
-        public ActionResult GetQuestionsForChapter(int chapterId, int? level = null)
-        {
-            var query = _context.Set<Question>().Where(q => q.ChapterId == chapterId);
-            
-            if (level.HasValue)
-            {
-                query = query.Where(q => q.Level == level.Value);
-            }
-            
-            var questions = query.ToList();
-            
-            var questionList = new List<object>();
-            
-            foreach (var q in questions)
-            {
-                var options = _context.Set<AnswerOptions>()
-                    .Where(a => a.QuestionId == q.QuestionId)
-                    .Select(a => new {
-                        id = a.AnswerOptionsId,
-                        text = a.Option,
-                        isCorrect = a.IsCorrect,
-                        description = a.Description ?? ""
-                    })
-                    .ToList();
-
-                questionList.Add(new {
-                    questionId = q.QuestionId,
-                    text = q.Questions,
-                    level = q.Level,
-                    answers = options
-                });
-            }
-
-            return Ok(questionList);
-        }
-
-        [HttpPost("submit-answer")]
-        public IActionResult SubmitAnswer([FromBody] SubmitAnswerRequest request)
+        public async Task<ActionResult<List<object>>> GetQuestionsForChapter(int chapterId, int? level = null)
         {
             try
             {
-                var question = _context.Set<Question>().FirstOrDefault(q => q.QuestionId == request.QuestionId);
-                if (question == null)
-                    return NotFound("Question not found");
+                var questions = await _testTakingActions.GetQuestionsForChapterAsync(chapterId, level);
+                return Ok(questions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving questions: {ex.Message}");
+            }
+        }
 
-                var correctOption = _context.Set<AnswerOptions>()
-                    .FirstOrDefault(a => a.QuestionId == request.QuestionId && a.IsCorrect);
-
-                var isCorrect = correctOption != null && 
-                    correctOption.AnswerOptionsId.ToString() == request.SelectedAnswerId;
-
-                return Ok(new {
-                    isCorrect = isCorrect,
-                    correctAnswerId = correctOption?.AnswerOptionsId.ToString(),
-                    explanation = correctOption?.Description ?? ""
-                });
+        [HttpPost("submit-answer")]
+        public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerRequest request)
+        {
+            try
+            {
+                var result = await _testTakingActions.SubmitAnswerAsync(request.QuestionId, request.SelectedAnswerId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -87,31 +49,13 @@ namespace webApiProject.Controllers
         {
             try
             {
-                var chapter = _context.Set<Chapter>().FirstOrDefault(c => c.ChapterId == request.ChapterId);
-                var course = chapter != null ? _context.Set<Course>().FirstOrDefault(c => c.CourseId == chapter.CourseId) : null;
-
-                var testResult = new TestResult
-                {
-                    StudentId = request.StudentId,
-                    Subject = course?.CourseName ?? "Unknown",
-                    Title = $"מבחן - {chapter?.Name ?? "פרק"}",
-                    Date = DateTime.Now,
-                    Score = request.CorrectCount,
-                    MaxScore = request.TotalQuestions > 0 ? request.TotalQuestions : 1,
-                    Duration = request.Duration
-                };
-
-                _context.Set<TestResult>().Add(testResult);
-                await _context.saveAsync();
-
-                var percentage = request.TotalQuestions > 0 ? (request.CorrectCount * 100.0 / request.TotalQuestions) : 0;
-
-                return Ok(new
-                {
-                    score = request.CorrectCount,
-                    total = request.TotalQuestions,
-                    percentage = percentage
-                });
+                var result = await _testTakingActions.FinishTestAsync(
+                    request.StudentId,
+                    request.ChapterId,
+                    request.Duration,
+                    request.CorrectCount,
+                    request.TotalQuestions);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -120,25 +64,17 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("results/{studentId}")]
-        public ActionResult GetStudentResults(int studentId)
+        public async Task<ActionResult<List<object>>> GetStudentResults(int studentId)
         {
-            var results = _context.Set<TestResult>()
-                .Where(t => t.StudentId == studentId)
-                .OrderByDescending(t => t.Date)
-                .Select(t => new
-                {
-                    id = t.TestResultId,
-                    title = t.Title,
-                    subject = t.Subject,
-                    score = t.Score,
-                    maxScore = t.MaxScore,
-                    percentage = t.MaxScore > 0 ? t.Score * 100.0 / t.MaxScore : 0,
-                    date = t.Date,
-                    duration = t.Duration
-                })
-                .ToList();
-
-            return Ok(results);
+            try
+            {
+                var results = await _testTakingActions.GetStudentResultsAsync(studentId);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving results: {ex.Message}");
+            }
         }
     }
 

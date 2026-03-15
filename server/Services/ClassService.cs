@@ -1,42 +1,54 @@
 using AutoMapper;
 using Repository.Entities;
 using Repository.interfaces;
-using Service.Dto;
 using Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Service.Services
 {
-    public class ClassService : IService<Classes>
+    public class ClassService : IService<Classes>, IClassActions
     {
-        private readonly IRepository<Classes> repository;
+        private readonly IRepository<Classes> _repository;
+
         public ClassService(IRepository<Classes> repository)
         {
-            this.repository = repository;
+            _repository = repository;
         }
-        public async Task<Classes> addItemAsync(Classes item)
-        {
-            return await repository.AddAsync(item);
-        }
-        public async Task deleteItemAsync(int id)
-        {
-            await repository.DeleteAsync(id);
-        }
+
         public async Task<List<Classes>> getAllAsync()
         {
-           return await repository.getAllAsync();
+            return await _repository.getAllAsync();
         }
+
         public async Task<Classes> getByIdAsync(int id)
         {
-            return await repository.getByIdAsync(id);
+            return await _repository.getByIdAsync(id);
         }
+
+        public async Task<Classes> addItemAsync(Classes item)
+        {
+            return await _repository.AddAsync(item);
+        }
+
         public async Task updateItemAsync(int id, Classes item)
         {
-            await repository.UpdateAsync(item);
+            await _repository.UpdateAsync(item);
+        }
+
+        public async Task deleteItemAsync(int id)
+        {
+            await _repository.DeleteAsync(id);
+        }
+
+        public async Task<List<Classes>> GetClassesBySchoolIdAsync(int schoolId)
+        {
+            var classes = (await _repository.getAllAsync()).Where(c => c.SchoolId == schoolId).ToList();
+            if (classes == null || classes.Count == 0)
+                throw new InvalidOperationException($"No classes found for School with ID {schoolId}");
+            return classes;
         }
     }
 }
