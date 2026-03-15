@@ -15,43 +15,43 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public Materials AddItem(Materials item)
+        public async Task<Materials> AddAsync(Materials item)
         {
-            _context.Set<Materials>().Add(item);
-            _context.save();
+            await _context.Set<Materials>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteAsync(int id)
         {
-            var material = GetById(id);
+            var material = await getByIdAsync(id);
             if (material != null)
             {
                 _context.Set<Materials>().Remove(material);
-                _context.save();
+                await _context.saveAsync();
             }
         }
 
-        public List<Materials> GetAll()
+        public async Task<List<Materials>> getAllAsync()
         {
-           return _context.Set<Materials>().ToList();  
+           return await Task.FromResult(_context.Set<Materials>().ToList());  
         }
 
-        public Materials GetById(int id)
+        public async Task<Materials> getByIdAsync(int id)
         {
-            return _context.Set<Materials>().FirstOrDefault(m => m.MatId == id);
+            return await Task.FromResult(_context.Set<Materials>().FirstOrDefault(m => m.MatId == id));
         }
 
-        public void UpdateItem(int id, Materials item)
+        public async Task UpdateAsync(Materials item)
         {
-            var material = GetById(id);
+            var material = await getByIdAsync(item.MatId);
             if (material != null)
             {
                 material.MatName = item.MatName;
                 material.MatDescription = item.MatDescription;
                 material.MatLink = item.MatLink;
                 material.CourseId = item.CourseId;
-                _context.save();
+                await _context.saveAsync();
             }
         }
     }

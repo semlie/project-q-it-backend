@@ -18,34 +18,36 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet]
-        public List<AnswerOptions> Get()
+        public async Task<ActionResult<List<AnswerOptions>>> Get()
         {
-            return service.GetAll();
+            return Ok(await service.getAllAsync());
         }
 
         [HttpGet("{id}")]
-        public AnswerOptions Get(int id)
+        public async Task<ActionResult<AnswerOptions>> Get(int id)
         {
-            return service.GetById(id);
+            return Ok(await service.getByIdAsync(id));
         }
 
         [HttpPut("{id}")]
-        public void Put([FromBody] AnswerOptions value)
+        public async Task<ActionResult> Put([FromBody] AnswerOptions value)
         {
-            service.AddItem(value);
+            await service.addItemAsync(value);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            service.DeleteItem(id);
+            await service.deleteItemAsync(id);
+            return NoContent();
         }
         [HttpPost]
-        public ActionResult<AnswerOptions> Post([FromBody] AnswerOptions value)
-        {
+        public async Task<ActionResult<AnswerOptions>> Post([FromBody] AnswerOptions value)
+        {   
             try
             {   
-                var result = service.AddItem(value);
+                var result = await service.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.AnswerOptionsId }, result);
             }
             catch (Exception ex)

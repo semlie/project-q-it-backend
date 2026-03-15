@@ -1,5 +1,8 @@
 using Repository.Entities;
 using Repository.interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repository.Repositories
 {
@@ -12,43 +15,43 @@ namespace Repository.Repositories
             _context = context;
         }
 
-        public TeacherClass AddItem(TeacherClass item)
+        public async Task<TeacherClass> AddAsync(TeacherClass item)
         {
             item.Teacher = null;
             item.Class = null;
-            _context.Set<TeacherClass>().Add(item);
-            _context.save();
+            await _context.Set<TeacherClass>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteAsync(int id)
         {
-            var item = GetById(id);
+            var item = await getByIdAsync(id);
             if (item != null)
             {
                 _context.Set<TeacherClass>().Remove(item);
-                _context.save();
+                await _context.saveAsync();
             }
         }
 
-        public List<TeacherClass> GetAll()
+        public async Task<List<TeacherClass>> getAllAsync()
         {
-            return _context.Set<TeacherClass>().ToList();
+            return await Task.FromResult(_context.Set<TeacherClass>().ToList());
         }
 
-        public TeacherClass GetById(int id)
+        public async Task<TeacherClass> getByIdAsync(int id)
         {
-            return _context.Set<TeacherClass>().FirstOrDefault(x => x.TeacherClassId == id);
+            return await Task.FromResult(_context.Set<TeacherClass>().FirstOrDefault(x => x.TeacherClassId == id));
         }
 
-        public void UpdateItem(int id, TeacherClass newItem)
+        public async Task UpdateAsync(TeacherClass newItem)
         {
-            var item = GetById(id);
+            var item = await getByIdAsync(newItem.TeacherClassId);
             if (item != null)
             {
                 item.TeacherId = newItem.TeacherId;
                 item.ClassId = newItem.ClassId;
-                _context.save();
+                await _context.saveAsync();
             }
         }
     }

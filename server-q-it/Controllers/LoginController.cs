@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Repository.Entities;
 using Service.Dto;
@@ -7,8 +7,6 @@ using System.CodeDom.Compiler;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace webApiProject.Controllers
 {
@@ -25,11 +23,11 @@ namespace webApiProject.Controllers
         }
         
         [HttpPost]
-        public IActionResult Post([FromBody] UserLogin user)
+        public async Task<IActionResult> Post([FromBody] UserLogin user)
         {
             try
             {
-                var user1 = login.Authenticate(user);
+                var user1 = await login.AuthenticateAsync(user);
                 if (user1 != null)
                 {
                     return Ok(GenerateToken(user1));
@@ -43,7 +41,7 @@ namespace webApiProject.Controllers
         }
         
         [HttpGet("{token}")]
-        public IActionResult Get(string token)
+        public async Task<IActionResult> Get(string token)
         {
             try
             {
@@ -77,7 +75,7 @@ namespace webApiProject.Controllers
                 }
 
                 var id = jwtSecurityToken.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
-                var user = login.GetUserById(int.Parse(id));
+                var user = await login.GetUserByIdAsync(int.Parse(id));
                 
                 if (user == null)
                 {

@@ -14,11 +14,11 @@ namespace webApiProject.Controllers
             this.service = service;
         }
         [HttpGet]
-        public ActionResult<List<School>> Get()
+        public async Task<ActionResult<List<School>>> Get()
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(await service.getAllAsync());
             }
             catch (Exception ex)
             {
@@ -26,11 +26,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpGet("{id}")]
-        public ActionResult<School> Get(int id)
+        public async Task<ActionResult<School>> Get(int id)
         {
             try
             {
-                var school = service.GetById(id);
+                var school = await service.getByIdAsync(id);
                 if (school == null)
                     return NotFound($"School with ID {id} not found");
                 return Ok(school);
@@ -41,11 +41,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpPost]
-        public ActionResult<School> Post([FromBody] School value)
+        public async Task<ActionResult<School>> Post([FromBody] School value)
         {
             try
             {
-                var result = service.AddItem(value);
+                var result = await service.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.SchoolId }, result);
             }
             catch (Exception ex)
@@ -54,11 +54,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] School value)
+        public async Task<ActionResult> Put(int id, [FromBody] School value)
         {
             try
             {
-                service.UpdateItem(id, value);
+                await service.updateItemAsync(id, value);
                 return NoContent();
             }
             catch (Exception ex)
@@ -67,11 +67,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
-                service.DeleteItem(id);
+                await service.deleteItemAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -80,11 +80,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpGet("{schoolName}/classes")]
-        public ActionResult<List<School>> GetClassesBySchoolName(string schoolName)
+        public async Task<ActionResult<List<School>>> GetClassesBySchoolName(string schoolName)
         {
             try
             {
-                var school = service.GetAll().Where(s => s.NameSchool.Equals(schoolName, StringComparison.OrdinalIgnoreCase));
+                var school = (await service.getAllAsync()).Where(s => s.NameSchool.Equals(schoolName, StringComparison.OrdinalIgnoreCase));
                 if (school == null || !school.Any())
                     return NotFound($"School with name {schoolName} not found");
                 return Ok(school);
@@ -95,25 +95,23 @@ namespace webApiProject.Controllers
             }
         }
         [HttpGet("unique-names")]
-public ActionResult GetUniqName()
-{
-    try
-    {
-        // אנחנו שולפים את כל בתי הספר, מבצעים Distinct לפי השם
-        // ומחזירים אובייקט שמכיל גם מזהה וגם שם
-        var uniqueSchools = service.GetAll()
-            .GroupBy(s => s.NameSchool)
-            .Select(g => g.First()) // לוקחים את האובייקט הראשון מכל קבוצת שמות זהה
-            .Select(s => new { 
-                Id = s.SchoolId, 
-                NameSchool = s.NameSchool 
-            }).ToList();
-        return Ok(uniqueSchools);
-    }
-    catch (Exception ex)
-    {
-        return StatusCode(500, ex.Message);
-    }
-}
+        public async Task<ActionResult> GetUniqName()
+        {
+            try
+            {
+                var uniqueSchools = (await service.getAllAsync())
+                    .GroupBy(s => s.NameSchool)
+                    .Select(g => g.First())
+                    .Select(s => new { 
+                        Id = s.SchoolId, 
+                        NameSchool = s.NameSchool 
+                    }).ToList();
+                return Ok(uniqueSchools);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

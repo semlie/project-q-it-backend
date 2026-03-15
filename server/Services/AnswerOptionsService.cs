@@ -20,32 +20,26 @@ namespace Service.Services
         }
         public async Task<AnswerOptions> addItemAsync(AnswerOptions item)
         {
-            return await repository.AddItemAsync(item);
+            return await repository.AddAsync(item);
         }
-
         public async Task deleteItemAsync(int id)
         {
-            await repository.DeleteItemAsync(id);
+            await repository.DeleteAsync(id);
         }
 
         public async Task<List<AnswerOptions>> getAllAsync()
         {
-           return await repository.GetAllAsync();
+            return await repository.getAllAsync();
         }
 
         public async Task<AnswerOptions> getByIdAsync(int id)
         {
-            return await repository.GetByIdAsync(id);
+            return await repository.getByIdAsync(id);
         }
 
         public async Task updateItemAsync(int id, AnswerOptions item)
         {
-            await repository.UpdateItemAsync(id,item);
-        }
-
-        public async Task deleteItemAsync(int id)
-        {
-            await repository.DeleteItemAsync(id);
+            await repository.UpdateAsync(item);
         }
     }
 }

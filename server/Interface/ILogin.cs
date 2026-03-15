@@ -11,8 +11,8 @@ namespace Service.Interface
 {
     public interface ILogin
     {
-        public Users? Authenticate(UserLogin user);
-        public Users GetUserById(int id);
+        Task<Users?> AuthenticateAsync(UserLogin user);
+        Task<Users> GetUserByIdAsync(int id);
 
     }
 }

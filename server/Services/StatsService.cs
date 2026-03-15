@@ -4,6 +4,7 @@ using Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Service.Services
 {
@@ -16,7 +17,7 @@ namespace Service.Services
             _context = context;
         }
 
-        public List<OverallStat> GetStudentOverallStats(int userId)
+        public async Task<List<OverallStat>> GetStudentOverallStatsAsync(int userId)
         {
             var tests = _context.Set<TestResult>().Where(t => t.StudentId == userId).ToList();
             var student = _context.Set<Users>().FirstOrDefault(u => u.UserId == userId);
@@ -26,20 +27,20 @@ namespace Service.Services
             var totalHours = tests.Sum(t => t.Duration) / 60.0;
             var subjectsCount = tests.Select(t => t.Subject).Distinct().Count();
 
-            return new List<OverallStat>
+            return await Task.FromResult(new List<OverallStat>
             {
                 new OverallStat { Label = "ממוצע כללי", Value = $"{avgScore:F1}%", Trend = avgScore >= 70 ? "up" : "down" },
                 new OverallStat { Label = "מבחנים שהושלמו", Value = totalTests.ToString(), Trend = "up" },
                 new OverallStat { Label = "שעות למידה", Value = $"{totalHours:F1}h", Trend = "up" },
                 new OverallStat { Label = "מקצועות", Value = subjectsCount.ToString(), Trend = "stable" }
-            };
+            });
         }
 
-        public List<SubjectPerformanceItem> GetStudentSubjectPerformance(int userId, string timeRange = "semester")
+        public async Task<List<SubjectPerformanceItem>> GetStudentSubjectPerformanceAsync(int userId, string timeRange = "semester")
         {
             var tests = _context.Set<TestResult>().Where(t => t.StudentId == userId).ToList();
             
-            return tests
+            return await Task.FromResult(tests
                 .GroupBy(t => t.Subject)
                 .Select(g => new SubjectPerformanceItem
                 {
@@ -50,12 +51,12 @@ namespace Service.Services
                     Tests = g.Count(),
                     ClassAverage = g.Average(t => (double)t.Score / t.MaxScore * 100)
                 })
-                .ToList();
+                .ToList());
         }
 
-        public List<RecentTest> GetStudentRecentTests(int userId)
+        public async Task<List<RecentTest>> GetStudentRecentTestsAsync(int userId)
         {
-            return _context.Set<TestResult>()
+            return await Task.FromResult(_context.Set<TestResult>()
                 .Where(t => t.StudentId == userId)
                 .OrderByDescending(t => t.Date)
                 .Take(10)
@@ -69,14 +70,14 @@ namespace Service.Services
                     MaxScore = t.MaxScore,
                     Duration = $"{t.Duration} דקות"
                 })
-                .ToList();
+                .ToList());
         }
 
-        public List<StudyHabits> GetStudentStudyHabits(int userId)
+        public async Task<List<StudyHabits>> GetStudentStudyHabitsAsync(int userId)
         {
             var tests = _context.Set<TestResult>().Where(t => t.StudentId == userId).ToList();
             
-            return tests
+            return await Task.FromResult(tests
                 .GroupBy(t => t.Date.DayOfWeek)
                 .Select(g => new StudyHabits
                 {
@@ -84,10 +85,10 @@ namespace Service.Services
                     Hours = g.Sum(t => t.Duration) / 60.0
                 })
                 .OrderBy(s => Array.IndexOf(new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" }, s.Day))
-                .ToList();
+                .ToList());
         }
 
-        public List<Achievement> GetStudentAchievements(int userId)
+        public async Task<List<Achievement>> GetStudentAchievementsAsync(int userId)
         {
             var tests = _context.Set<TestResult>().Where(t => t.StudentId == userId).ToList();
             var achievements = new List<Achievement>();
@@ -119,10 +120,10 @@ namespace Service.Services
                 });
             }
 
-            return achievements;
+            return await Task.FromResult(achievements);
         }
 
-        public List<WeeklyProgressItem> GetStudentWeeklyProgress(int userId)
+        public async Task<List<WeeklyProgressItem>> GetStudentWeeklyProgressAsync(int userId)
         {
             var oneWeekAgo = DateTime.Now.AddDays(-7);
             var tests = _context.Set<TestResult>()
@@ -131,36 +132,36 @@ namespace Service.Services
 
             var days = new[] { "ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת" };
             
-            return days.Select(day => new WeeklyProgressItem
+            return await Task.FromResult(days.Select(day => new WeeklyProgressItem
             {
                 Day = day,
                 Tests = tests.Count(t => t.Date.DayOfWeek.ToString("d") == Array.IndexOf(days, day).ToString()),
                 Hours = tests.Where(t => t.Date.DayOfWeek.ToString("d") == Array.IndexOf(days, day).ToString()).Sum(t => t.Duration) / 60.0,
                 Average = tests.Where(t => t.Date.DayOfWeek.ToString("d") == Array.IndexOf(days, day).ToString()).Select(t => (double)t.Score / t.MaxScore * 100).DefaultIfEmpty(0).Average()
-            }).ToList();
+            }).ToList());
         }
 
-        public List<TeacherOverallStat> GetTeacherOverallStats(int userId)
+        public async Task<List<TeacherOverallStat>> GetTeacherOverallStatsAsync(int userId)
         {
             var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == userId).ToList();
             var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
             var students = _context.Set<Users>().Where(u => classIds.Contains(u.ClassId ?? 0)).ToList();
             var tests = _context.Set<TestResult>().Where(t => students.Select(s => s.UserId).Contains(t.StudentId)).ToList();
 
-            return new List<TeacherOverallStat>
+            return await Task.FromResult(new List<TeacherOverallStat>
             {
                 new TeacherOverallStat { Label = "כיתות", Value = teacherClasses.Count.ToString() },
                 new TeacherOverallStat { Label = "תלמידים", Value = students.Count.ToString() },
                 new TeacherOverallStat { Label = "מבחנים", Value = tests.Count.ToString() },
                 new TeacherOverallStat { Label = "ממוצע כללי", Value = tests.Count > 0 ? $"{tests.Average(t => (double)t.Score / t.MaxScore * 100):F1}%" : "0%" }
-            };
+            });
         }
 
-        public List<ClassProgress> GetTeacherClassProgress(int userId)
+        public async Task<List<ClassProgress>> GetTeacherClassProgressAsync(int userId)
         {
             var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == userId).ToList();
             
-            return teacherClasses.Select(tc =>
+            return await Task.FromResult(teacherClasses.Select(tc =>
             {
                 var classStudents = _context.Set<Users>().Where(u => u.ClassId == tc.ClassId).ToList();
                 var studentIds = classStudents.Select(s => s.UserId).ToList();
@@ -174,10 +175,10 @@ namespace Service.Services
                     Tests = tests.Count,
                     Trend = "stable"
                 };
-            }).ToList();
+            }).ToList());
         }
 
-        public List<TeacherSubjectItem> GetTeacherSubjects(int userId)
+        public async Task<List<TeacherSubjectItem>> GetTeacherSubjectsAsync(int userId)
         {
             var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == userId).ToList();
             var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
@@ -190,7 +191,7 @@ namespace Service.Services
                 .Distinct()
                 .ToList();
 
-            return subjects.Select(s => {
+            return await Task.FromResult(subjects.Select(s => {
                 var subjectTests = testResults.Where(t => t.Subject == s).ToList();
                 return new TeacherSubjectItem
                 {
@@ -201,16 +202,16 @@ namespace Service.Services
                     TestsCreated = subjectTests.Count,
                     Trend = "stable"
                 };
-            }).ToList();
+            }).ToList());
         }
 
-        public List<RecentTest> GetTeacherRecentTests(int userId)
+        public async Task<List<RecentTest>> GetTeacherRecentTestsAsync(int userId)
         {
             var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == userId).ToList();
             var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
             var studentIds = _context.Set<Users>().Where(u => classIds.Contains(u.ClassId ?? 0)).Select(u => u.UserId).ToList();
 
-            return _context.Set<TestResult>()
+            return await Task.FromResult(_context.Set<TestResult>()
                 .Where(t => studentIds.Contains(t.StudentId))
                 .OrderByDescending(t => t.Date)
                 .Take(10)
@@ -224,7 +225,7 @@ namespace Service.Services
                     MaxScore = t.MaxScore,
                     Duration = $"{t.Duration} דקות"
                 })
-                .ToList();
+                .ToList());
         }
     }
 }

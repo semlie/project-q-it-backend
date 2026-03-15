@@ -18,29 +18,29 @@ namespace Service.Services
         {
             this.repository = repository;
         }
-        public Course AddItem(Course item)
+        public async Task<Course> addItemAsync(Course item)
         {
-            return repository.AddItem(item);
+            return await repository.AddAsync(item);
         }
 
-        public void DeleteItem(int id)
+        public async Task deleteItemAsync(int id)
         {
-            repository.DeleteItem(id);
+            await repository.DeleteAsync(id);
         }
 
-        public List<Course> GetAll()
+        public async Task<List<Course>> getAllAsync()
         {
-           return repository.GetAll();
+           return await repository.getAllAsync();
         }
 
-        public Course GetById(int id)
+        public async Task<Course> getByIdAsync(int id)
         {
-            return repository.GetById(id);
+            return await repository.getByIdAsync(id);
         }
 
-        public void UpdateItem(int id, Course item)
+        public async Task updateItemAsync(int id, Course item)
         {
-            repository.UpdateItem(id,item);
+            await repository.UpdateAsync(item);
         }
     }
 }

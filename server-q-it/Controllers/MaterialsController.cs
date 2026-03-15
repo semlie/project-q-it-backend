@@ -21,9 +21,9 @@ namespace webApiProject.Controllers
             this.env = env;
         }
         [HttpGet("course/{courseId}")]
-        public ActionResult<List<Materials>> GetByCourseId(int courseId)
+        public async Task<ActionResult<List<Materials>>> GetByCourseId(int courseId)
         {
-            var materials = service.GetAll().Where(m => m.CourseId == courseId).ToList();
+            var materials = (await service.getAllAsync()).Where(m => m.CourseId == courseId).ToList();
             if (materials == null || materials.Count == 0)
             {
                 return NotFound();
@@ -31,9 +31,9 @@ namespace webApiProject.Controllers
             return Ok(materials);
         }
         [HttpGet]
-        public ActionResult<List<Materials>> Get()
+        public async Task<ActionResult<List<Materials>>> Get()
         {
-            var materials = service.GetAll();
+            var materials = await service.getAllAsync();
             if (materials == null || materials.Count == 0)
             {
                 return NotFound();
@@ -42,9 +42,9 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Materials> Get(int id)
+        public async Task<ActionResult<Materials>> Get(int id)
         {
-            var material = service.GetById(id);
+            var material = await service.getByIdAsync(id);
             if (material == null)
             {
                 return NotFound();
@@ -80,14 +80,14 @@ namespace webApiProject.Controllers
                 CourseId = value.CourseId
             };
 
-            var createdMaterial = service.AddItem(material);
+            var createdMaterial = await service.addItemAsync(material);
             return CreatedAtAction(nameof(Get), new { id = createdMaterial.MatId }, createdMaterial);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromForm] MaterialsDto value)
         {
-            var material = service.GetById(id);
+            var material = await service.getByIdAsync(id);
             if (material == null)
             {
                 return NotFound();
@@ -125,28 +125,28 @@ namespace webApiProject.Controllers
                 CourseId = value.CourseId
             };
 
-            service.UpdateItem(id, updatedMaterial);
+            await service.updateItemAsync(id, updatedMaterial);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var material = service.GetById(id);
+            var material = await service.getByIdAsync(id);
             if (material == null)
             {
                 return NotFound();
             }
 
             TryDeleteMaterialFile(material.MatLink);
-            service.DeleteItem(id);
+            await service.deleteItemAsync(id);
             return NoContent();
         }
 
         [HttpGet("{id}/download")]
-        public IActionResult Download(int id)
+        public async Task<IActionResult> Download(int id)
         {
-            var material = service.GetById(id);
+            var material = await service.getByIdAsync(id);
             if (material == null || string.IsNullOrWhiteSpace(material.MatLink))
             {
                 return NotFound();

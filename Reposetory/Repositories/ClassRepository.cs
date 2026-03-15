@@ -15,45 +15,45 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public Classes AddItem(Classes item)
+
+        public async Task<Classes> AddAsync(Classes item)
         {
-            _context.Set<Classes>().Add(item);
-            _context.save();
+            await _context.Set<Classes>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+       
+        public async Task DeleteAsync(int id)
         {
-            var classItem = GetById(id);
+            var classItem = await getByIdAsync(id);
             if (classItem != null)
             {
                 _context.Set<Classes>().Remove(classItem);
-                _context.save();
+                await _context.saveAsync();
             }
         }
-
-        public List<Classes> GetAll()
+        public async Task<List<Classes>> getAllAsync()
         {
-           return _context.Set<Classes>().ToList();  
+            return await Task.FromResult(_context.Set<Classes>().ToList());
+        }
+        public async Task<Classes> getByIdAsync(int id)
+        {
+            return await Task.FromResult(_context.Set<Classes>().FirstOrDefault(c => c.ClassId == id));
         }
 
-        public Classes GetById(int id)
+        public async Task UpdateAsync(Classes item)
         {
-            return _context.Set<Classes>().FirstOrDefault(c => c.ClassId == id);
-        }
-
-        public void UpdateItem(int id, Classes newItem)
-        {
-            var item = GetById(id);
-            if (item != null)
+            var existingItem = await getByIdAsync(item.ClassId);
+            if (existingItem != null)
             {
-                item.ClassName = newItem.ClassName;
-                item.SchoolId = newItem.SchoolId;
-                _context.save();
+                existingItem.ClassName = item.ClassName;
+                existingItem.SchoolId = item.SchoolId;
+                await _context.saveAsync();
             }
             else
             {
-                throw new Exception($"Class with ID {id} not found");
+                throw new Exception($"Class with ID {item.ClassId} not found");
             }
         }
     }

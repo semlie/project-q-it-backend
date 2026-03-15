@@ -83,7 +83,7 @@ namespace webApiProject.Controllers
         }
 
         [HttpPost("finish")]
-        public IActionResult FinishTest([FromBody] FinishTestRequest request)
+        public async Task<IActionResult> FinishTest([FromBody] FinishTestRequest request)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace webApiProject.Controllers
                 };
 
                 _context.Set<TestResult>().Add(testResult);
-                _context.save();
+                await _context.saveAsync();
 
                 var percentage = request.TotalQuestions > 0 ? (request.CorrectCount * 100.0 / request.TotalQuestions) : 0;
 

@@ -17,9 +17,9 @@ namespace Service.Services
         {
             this._repository = _repository;
         }
-        public Users? Authenticate(UserLogin user)
+        public async Task<Users?> AuthenticateAsync(UserLogin user)
         {
-            var existingUser = _repository.GetAll().FirstOrDefault(x => x.UserEmail == user.UserEmail);
+            var existingUser = (await _repository.getAllAsync()).FirstOrDefault(x => x.UserEmail == user.UserEmail);
             if (existingUser == null)
             {
                 return null;
@@ -37,9 +37,9 @@ namespace Service.Services
             return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
         }
         
-        public Users GetUserById(int id)
+        public async Task<Users> GetUserByIdAsync(int id)
         {
-            return _repository.GetAll().FirstOrDefault(x => x.UserId == id);
+            return (await _repository.getAllAsync()).FirstOrDefault(x => x.UserId == id);
         }
     }
 }

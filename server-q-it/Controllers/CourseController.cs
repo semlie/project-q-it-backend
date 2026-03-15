@@ -9,8 +9,6 @@ using Repository.Entities;
 using Repository.interfaces;
 using Service.Interface;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace webApiProject.Controllers
 {
     [Route("api/[controller]")]
@@ -29,11 +27,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Course>> Get()
+        public async Task<ActionResult<List<Course>>> Get()
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(await service.getAllAsync());
             }
             catch (Exception ex)
             {
@@ -42,11 +40,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Course> Get(int id)
+        public async Task<ActionResult<Course>> Get(int id)
         {
             try
             {
-                var course = service.GetById(id);
+                var course = await service.getByIdAsync(id);
                 if (course == null)
                     return NotFound($"Course with ID {id} not found");
                 return Ok(course);
@@ -58,12 +56,12 @@ namespace webApiProject.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Course> Post([FromBody] Course value)
+        public async Task<ActionResult<Course>> Post([FromBody] Course value)
         {
             try
             {
-                value.CourseId = 0; // enforce insert
-                var result = service.AddItem(value);
+                value.CourseId = 0;
+                var result = await service.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.CourseId }, result);
             }
             catch (DbUpdateException ex)
@@ -82,11 +80,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] Course value)
+        public async Task<ActionResult> Put(int id, [FromBody] Course value)
         {
             try
             {
-                service.UpdateItem(id, value);
+                await service.updateItemAsync(id, value);
                 return NoContent();
             }
             catch (Exception ex)
@@ -96,11 +94,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
-                service.DeleteItem(id);
+                await service.deleteItemAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -110,16 +108,15 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("class/{id}")]
-        public ActionResult<List<Course>> GetByClassId(int id)
+        public async Task<ActionResult<List<Course>>> GetByClassId(int id)
         {
             try
             {
-                // Get the school for this class
                 var cls = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == id);
                 if (cls == null)
                     return NotFound($"Class with ID {id} not found");
                     
-                var courses = service.GetAll().Where(x => x.SchoolId == cls.SchoolId).ToList();
+                var courses = (await service.getAllAsync()).Where(x => x.SchoolId == cls.SchoolId).ToList();
                 return Ok(courses);
             }
             catch (Exception ex)

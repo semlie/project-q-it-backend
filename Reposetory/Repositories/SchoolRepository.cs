@@ -15,44 +15,44 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public School AddItem(School item)
+        public async Task<School> AddAsync(School item)
         {
-            _context.Set<School>().Add(item);
-            _context.save();
+            await _context.Set<School>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteAsync(int id)
         {
-            var school = GetById(id);
+            var school = await getByIdAsync(id);
             if (school != null)
             {
                 _context.Set<School>().Remove(school);
-                _context.save();
+                await _context.saveAsync();
             }
         }
 
-        public List<School> GetAll()
+        public async Task<List<School>> getAllAsync()
         {
-           return _context.Set<School>().ToList();  
+           return await Task.FromResult(_context.Set<School>().ToList());  
         }
 
-        public School GetById(int id)
+        public async Task<School> getByIdAsync(int id)
         {
-            return _context.Set<School>().FirstOrDefault(s => s.SchoolId == id);
+            return await Task.FromResult(_context.Set<School>().FirstOrDefault(s => s.SchoolId == id));
         }
 
-        public void UpdateItem(int id, School newItem)
+        public async Task UpdateAsync(School newItem)
         {
-            var school = GetById(id);
+            var school = await getByIdAsync(newItem.SchoolId);
             if (school != null)
             {
                 school.NameSchool = newItem.NameSchool;
-                _context.save();
+                await _context.saveAsync();
             }
             else
             {
-                throw new Exception($"School with ID {id} not found");
+                throw new Exception($"School with ID {newItem.SchoolId} not found");
             }
         }
     }

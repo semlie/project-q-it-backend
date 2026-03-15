@@ -1,4 +1,4 @@
-﻿using Repository.Entities;
+using Repository.Entities;
 using Repository.interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,39 +15,42 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public Course AddItem(Course item)
+        public async Task<Course> AddAsync(Course item)
         {
-            _context.Set<Course>().Add(item);
-            _context.save();
+            await _context.Set<Course>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteAsync(int id)
         {
-            var course = GetById(id);
+            var course = await getByIdAsync(id);
             if (course != null)
             {
                 _context.Set<Course>().Remove(course);
-                _context.save();
+                await _context.saveAsync();
             }
         }
 
-        public List<Course> GetAll()
+        public async Task<List<Course>> getAllAsync()
         {
-           return _context.Set<Course>().ToList();  
+           return await Task.FromResult(_context.Set<Course>().ToList());  
         }
-    //החזרת קורס לפי מזהה של course ולא לפי מזהה של school
-        public Course GetById(int id)
+        
+        public async Task<Course> getByIdAsync(int id)
         {
-            return _context.Set<Course>().FirstOrDefault(x => x.CourseId == id);
+            return await Task.FromResult(_context.Set<Course>().FirstOrDefault(x => x.CourseId == id));
         }
 
-        public void UpdateItem(int id, Course item)
+        public async Task UpdateAsync(Course item)
         {
-            var course =  GetById(id);
-            course.CourseName = item.CourseName;
-            course.SchoolId = item.SchoolId;
-            _context.save();
+            var course = await getByIdAsync(item.CourseId);
+            if (course != null)
+            {
+                course.CourseName = item.CourseName;
+                course.SchoolId = item.SchoolId;
+                await _context.saveAsync();
+            }
         }
     }
 }

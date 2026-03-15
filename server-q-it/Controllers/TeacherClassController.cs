@@ -24,11 +24,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<TeacherClass>> Get()
+        public async Task<ActionResult<List<TeacherClass>>> Get()
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(await service.getAllAsync());
             }
             catch (Exception ex)
             {
@@ -37,11 +37,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<TeacherClass> Get(int id)
+        public async Task<ActionResult<TeacherClass>> Get(int id)
         {
             try
             {
-                var item = service.GetById(id);
+                var item = await service.getByIdAsync(id);
                 if (item == null)
                     return NotFound($"TeacherClass with ID {id} not found");
                 return Ok(item);
@@ -53,7 +53,7 @@ namespace webApiProject.Controllers
         }
 
         [HttpPost]
-        public ActionResult<TeacherClass> Post([FromBody] TeacherClassDto value)
+        public async Task<ActionResult<TeacherClass>> Post([FromBody] TeacherClassDto value)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace webApiProject.Controllers
                     Teacher = null,
                     Class = null
                 };
-                var result = service.AddItem(entity);
+                var result = await service.addItemAsync(entity);
                 return CreatedAtAction(nameof(Get), new { id = result.TeacherClassId }, result);
             }
             catch (DbUpdateException ex)
@@ -79,7 +79,7 @@ namespace webApiProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] TeacherClassDto value)
+        public async Task<ActionResult> Put(int id, [FromBody] TeacherClassDto value)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace webApiProject.Controllers
                     Teacher = null,
                     Class = null
                 };
-                service.UpdateItem(id, entity);
+                await service.updateItemAsync(id, entity);
                 return NoContent();
             }
             catch (Exception ex)
@@ -100,11 +100,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
-                service.DeleteItem(id);
+                await service.deleteItemAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -113,11 +113,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpGet("byTeacher/{teacherId}")]
-        public ActionResult<List<TeacherClass>> GetByTeacher(int teacherId)
+        public async Task<ActionResult<List<TeacherClass>>> GetByTeacher(int teacherId)
         {
             try
             {
-                var items = service.GetAll().Where(tc => tc.TeacherId == teacherId).ToList();
+                var items = (await service.getAllAsync()).Where(tc => tc.TeacherId == teacherId).ToList();
                 if (items == null || items.Count == 0)
                     return NotFound($"No TeacherClass entries found for Teacher ID {teacherId}");
                 return Ok(items);

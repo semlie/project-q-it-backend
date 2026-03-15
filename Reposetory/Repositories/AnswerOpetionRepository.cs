@@ -15,43 +15,43 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public AnswerOptions AddItem(AnswerOptions item)
+        public async Task<AnswerOptions> AddAsync(AnswerOptions item)
         {
-            _context.Set<AnswerOptions>().Add(item);
-            _context.save();
+            await _context.Set<AnswerOptions>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteAsync(int id)
         {
-            var answerOption = GetById(id);
+            var answerOption = await getByIdAsync(id);
             if (answerOption != null)
             {
                 _context.Set<AnswerOptions>().Remove(answerOption);
-                _context.save();
+                await _context.saveAsync();
             }
         }
 
-        public List<AnswerOptions> GetAll()
+        public async Task<List<AnswerOptions>> getAllAsync()
         {
-           return _context.Set<AnswerOptions>().ToList();  
+           return await Task.FromResult(_context.Set<AnswerOptions>().ToList());  
         }
 
-        public AnswerOptions GetById(int id)
+        public async Task<AnswerOptions> getByIdAsync(int id)
         {
-            return _context.Set<AnswerOptions>().FirstOrDefault(a => a.AnswerOptionsId == id);
+            return await Task.FromResult(_context.Set<AnswerOptions>().FirstOrDefault(a => a.AnswerOptionsId == id));
         }
 
-        public void UpdateItem(int id, AnswerOptions item)
+        public async Task UpdateAsync(AnswerOptions item)
         {
-            var answerOption = GetById(id);
+            var answerOption = await getByIdAsync(item.AnswerOptionsId);
             if (answerOption != null)
             {      
                  answerOption.QuestionId = item.QuestionId;
                  answerOption.Option = item.Option;
                  answerOption.IsCorrect = item.IsCorrect;
                  answerOption.Description = item.Description;       
-                _context.save();
+                await _context.saveAsync();
             }
         }
     }

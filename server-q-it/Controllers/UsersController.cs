@@ -26,11 +26,11 @@ namespace webApiProject.Controllers
         }
         
         [HttpGet]
-        public ActionResult<List<Users>> Get()
+        public async Task<ActionResult<List<Users>>> Get()
         {
             try
             {
-                return Ok(service.GetAll());
+                return Ok(await service.getAllAsync());
             }
             catch (Exception ex)
             {
@@ -39,11 +39,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Users> Get(int id)
+        public async Task<ActionResult<Users>> Get(int id)
         {
             try
             {
-                var user = service.GetById(id);
+                var user = await service.getByIdAsync(id);
                 if (user == null)
                     return NotFound($"User with ID {id} not found");
                 return Ok(user);
@@ -55,11 +55,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("{id}/courses")]
-        public ActionResult<List<Course>> GetUserCourses(int id)
+        public async Task<ActionResult<List<Course>>> GetUserCourses(int id)
         {
             try
             {
-                var user = service.GetById(id);
+                var user = await service.getByIdAsync(id);
                 if (user == null)
                     return NotFound($"User with ID {id} not found");
 
@@ -67,10 +67,8 @@ namespace webApiProject.Controllers
 
                 if (user.Role == "Student")
                 {
-                    // Student: get courses from their single class (via school)
                     if (user.ClassId.HasValue)
                     {
-                        // Get the school for this class
                         var studentClass = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == user.ClassId.Value);
                         if (studentClass != null)
                         {
@@ -81,9 +79,8 @@ namespace webApiProject.Controllers
                     }
                     return Ok(new List<Course>());
                 }
-                else // Teacher
+                else 
                 {
-                    // Teacher: get courses from all their classes' schools
                     var teacherClasses = _context.Set<TeacherClass>().Where(tc => tc.TeacherId == user.UserId).ToList();
                     
                     if (teacherClasses == null || !teacherClasses.Any())
@@ -110,11 +107,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] Users value)
+        public async Task<ActionResult> Put(int id, [FromBody] Users value)
         {
             try
             {
-                service.UpdateItem(id, value);
+                await service.updateItemAsync(id, value);
                 return NoContent();
             }
             catch (Exception ex)
@@ -124,11 +121,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             try
             {
-                service.DeleteItem(id);
+                await service.deleteItemAsync(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -138,11 +135,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpDelete("{id}/image")]
-        public ActionResult DeleteImage(int id)
+        public async Task<ActionResult> DeleteImage(int id)
         {
             try
             {
-                var user = service.GetById(id);
+                var user = await service.getByIdAsync(id);
                 if (user == null)
                 {
                     return NotFound($"User with ID {id} not found");
@@ -162,7 +159,7 @@ namespace webApiProject.Controllers
                 }
 
                 user.UserImageUrl = string.Empty;
-                service.UpdateItem(id, user);
+                await service.updateItemAsync(id, user);
 
                 return NoContent();
             }
@@ -216,11 +213,7 @@ namespace webApiProject.Controllers
                     UserImageUrl = imagePath
                 };
 
-                var result = service.AddItem(user);
-                
-                if (value.Role == "Teacher" && value.ClassIds != null && value.ClassIds.Any())
-                {
-                }
+                var result = await service.addItemAsync(user);
                 
                 return CreatedAtAction(nameof(Get), new { id = result.UserId }, result);
             }

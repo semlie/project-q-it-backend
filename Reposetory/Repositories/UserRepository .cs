@@ -1,4 +1,4 @@
-﻿using Repository.Entities;
+using Repository.Entities;
 using Repository.interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,37 +15,36 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public Users AddItem(Users item)
+        public async Task<Users> AddAsync(Users item)
         {
            _context.Set<Users>().Add(item);
-            
-            _context.save();
-            return item;
+           await _context.saveAsync();
+           return item;
         }
-
-        public void DeleteItem(int id)
+        
+        public async Task DeleteAsync(int id)
         {
-            var user = GetById(id);
+            var user = await getByIdAsync(id);
             if (user != null)
             {
-                _context.Set<Users>().Remove(user);
-                _context.save();
+                _context.Users.Remove(user);
+                await _context.saveAsync();
             }
         }
 
-        public List<Users> GetAll()
+        public async Task<List<Users>> getAllAsync()
         {
-           return _context.Set<Users>().ToList();  
+           return await Task.FromResult(_context.Set<Users>().ToList());  
         }
 
-        public Users GetById(int id)
+        public async Task<Users> getByIdAsync(int id)
         {
-            return _context.Set<Users>().FirstOrDefault(x => x.UserId == id);
+            return await Task.FromResult(_context.Set<Users>().FirstOrDefault(x => x.UserId == id));
         }
-
-        public void UpdateItem(int id, Users newItem)
+        
+        public async Task UpdateAsync(Users newItem)
         {
-            var user = GetById(id);
+            var user = await getByIdAsync(newItem.UserId);
             if (user != null)
             {
                 user.UserName = newItem.UserName;
@@ -53,7 +52,7 @@ namespace Repository.Repositories
                 user.Role = newItem.Role;
                 user.UserImageUrl = newItem.UserImageUrl;
                 user.ClassId = newItem.ClassId;
-                _context.save();
+                await _context.saveAsync();
             }
         }
        

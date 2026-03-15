@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Repository.Entities;
 using Repository.interfaces;
 using Service.Dto;
@@ -11,37 +11,39 @@ using System.Threading.Tasks;
 
 namespace Service.Services
 {
-    public class UsersService : IService<Users>
+    public class UsersService : IService<Repository.Entities.Users>
     {
-        private readonly IRepository<Users> repository;
-        public UsersService(IRepository<Users> repository)
+        private readonly IRepository<Repository.Entities.Users> repository;
+        private readonly IMapper mapper;
+        public UsersService(IRepository<Repository.Entities.Users> repository, IMapper mapper)
         {
             this.repository = repository;
+            this.mapper = mapper;
         }
-        public Users AddItem(Users item)
+        public async Task<Repository.Entities.Users> addItemAsync(Repository.Entities.Users item)
         {
-            
-           return repository.AddItem(item);
-        }
-
-        public void DeleteItem(int id)
-        {
-            repository.DeleteItem(id);
+           
+           return await repository.AddAsync(item);
         }
 
-        public List<Users> GetAll()
+        public async Task deleteItemAsync(int id)
         {
-           return repository.GetAll();
+            await repository.DeleteAsync(id);
         }
 
-        public Users GetById(int id)
+        public async Task<List<Repository.Entities.Users>> getAllAsync()
         {
-            return repository.GetById(id);
+           return await repository.getAllAsync();
         }
 
-        public void UpdateItem(int id, Users item)
+        public async Task<Repository.Entities.Users> getByIdAsync(int id)
         {
-            repository.UpdateItem(id, item);
+            return await repository.getByIdAsync(id);
+        }
+
+        public async Task updateItemAsync(int id, Repository.Entities.Users item)
+        {
+            await repository.UpdateAsync(item);
         }
     }
 }

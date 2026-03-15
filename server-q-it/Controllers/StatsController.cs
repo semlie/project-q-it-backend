@@ -15,11 +15,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("student/{userId}/overall")]
-        public ActionResult<List<OverallStat>> GetStudentOverallStats(int userId)
+        public async Task<ActionResult<List<OverallStat>>> GetStudentOverallStats(int userId)
         {
             try
             {
-                return Ok(_statsService.GetStudentOverallStats(userId));
+                return Ok(await _statsService.GetStudentOverallStatsAsync(userId));
             }
             catch (Exception ex)
             {
@@ -28,11 +28,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("student/{userId}/subjects")]
-        public ActionResult<List<SubjectPerformanceItem>> GetStudentSubjectPerformance(int userId, [FromQuery] string timeRange = "semester")
+        public async Task<ActionResult<List<SubjectPerformanceItem>>> GetStudentSubjectPerformance(int userId, [FromQuery] string timeRange = "semester")
         {
             try
             {
-                return Ok(_statsService.GetStudentSubjectPerformance(userId, timeRange));
+                return Ok(await _statsService.GetStudentSubjectPerformanceAsync(userId, timeRange));
             }
             catch (Exception ex)
             {
@@ -41,11 +41,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("student/{userId}/recent-tests")]
-        public ActionResult<List<RecentTest>> GetStudentRecentTests(int userId)
+        public async Task<ActionResult<List<RecentTest>>> GetStudentRecentTests(int userId)
         {
             try
             {
-                return Ok(_statsService.GetStudentRecentTests(userId));
+                return Ok(await _statsService.GetStudentRecentTestsAsync(userId));
             }
             catch (Exception ex)
             {
@@ -54,11 +54,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("student/{userId}/study-habits")]
-        public ActionResult<List<StudyHabits>> GetStudentStudyHabits(int userId)
+        public async Task<ActionResult<List<StudyHabits>>> GetStudentStudyHabits(int userId)
         {
             try
             {
-                return Ok(_statsService.GetStudentStudyHabits(userId));
+                return Ok(await _statsService.GetStudentStudyHabitsAsync(userId));
             }
             catch (Exception ex)
             {
@@ -67,11 +67,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("student/{userId}/achievements")]
-        public ActionResult<List<Achievement>> GetStudentAchievements(int userId)
+        public async Task<ActionResult<List<Achievement>>> GetStudentAchievements(int userId)
         {
             try
             {
-                return Ok(_statsService.GetStudentAchievements(userId));
+                return Ok(await _statsService.GetStudentAchievementsAsync(userId));
             }
             catch (Exception ex)
             {
@@ -80,11 +80,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("student/{userId}/weekly-progress")]
-        public ActionResult<List<WeeklyProgressItem>> GetStudentWeeklyProgress(int userId)
+        public async Task<ActionResult<List<WeeklyProgressItem>>> GetStudentWeeklyProgress(int userId)
         {
             try
             {
-                return Ok(_statsService.GetStudentWeeklyProgress(userId));
+                return Ok(await _statsService.GetStudentWeeklyProgressAsync(userId));
             }
             catch (Exception ex)
             {
@@ -93,11 +93,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("teacher/{userId}/overall")]
-        public ActionResult<List<TeacherOverallStat>> GetTeacherOverallStats(int userId)
+        public async Task<ActionResult<List<TeacherOverallStat>>> GetTeacherOverallStats(int userId)
         {
             try
             {
-                return Ok(_statsService.GetTeacherOverallStats(userId));
+                return Ok(await _statsService.GetTeacherOverallStatsAsync(userId));
             }
             catch (Exception ex)
             {
@@ -106,11 +106,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("teacher/{userId}/class-progress")]
-        public ActionResult<List<ClassProgress>> GetTeacherClassProgress(int userId)
+        public async Task<ActionResult<List<ClassProgress>>> GetTeacherClassProgress(int userId)
         {
             try
             {
-                return Ok(_statsService.GetTeacherClassProgress(userId));
+                return Ok(await _statsService.GetTeacherClassProgressAsync(userId));
             }
             catch (Exception ex)
             {
@@ -119,11 +119,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("teacher/{userId}/subjects")]
-        public ActionResult<List<TeacherSubjectItem>> GetTeacherSubjects(int userId)
+        public async Task<ActionResult<List<TeacherSubjectItem>>> GetTeacherSubjects(int userId)
         {
             try
             {
-                return Ok(_statsService.GetTeacherSubjects(userId));
+                return Ok(await _statsService.GetTeacherSubjectsAsync(userId));
             }
             catch (Exception ex)
             {
@@ -132,11 +132,11 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet("teacher/{userId}/recent-tests")]
-        public ActionResult<List<RecentTest>> GetTeacherRecentTests(int userId)
+        public async Task<ActionResult<List<RecentTest>>> GetTeacherRecentTests(int userId)
         {
             try
             {
-                return Ok(_statsService.GetTeacherRecentTests(userId));
+                return Ok(await _statsService.GetTeacherRecentTestsAsync(userId));
             }
             catch (Exception ex)
             {

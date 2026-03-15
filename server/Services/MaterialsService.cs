@@ -18,29 +18,29 @@ namespace Service.Services
         {
             this.repository = repository;
         }
-        public Materials AddItem(Materials item)
+        public async Task<Materials> addItemAsync(Materials item)
         {
-            return repository.AddItem(item);
+            return await repository.AddAsync(item);
         }
 
-        public void DeleteItem(int id)
+        public async Task deleteItemAsync(int id)
         {
-            repository.DeleteItem(id);
+            await repository.DeleteAsync(id);
         }
 
-        public List<Materials> GetAll()
+        public async Task<List<Materials>> getAllAsync()
         {
-           return repository.GetAll();
+           return await repository.getAllAsync();
         }
 
-        public Materials GetById(int id)
+        public async Task<Materials> getByIdAsync(int id)
         {
-            return repository.GetById(id);
+            return await repository.getByIdAsync(id);
         }
 
-        public void UpdateItem(int id, Materials item)
+        public async Task updateItemAsync(int id, Materials item)
         {
-            repository.UpdateItem(id,item);
+            await repository.UpdateAsync(item);
         }
     }
 }

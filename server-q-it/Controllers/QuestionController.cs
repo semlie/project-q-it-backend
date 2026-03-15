@@ -18,41 +18,42 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet]
-        public List<Question> Get()
+        public async Task<ActionResult<List<Question>>> Get()
         {
-            return service.GetAll();
+            return Ok(await service.getAllAsync());
         }
 
         [HttpGet("{id}")]
-        public Question Get(int id)
+        public async Task<ActionResult<Question>> Get(int id)
         {
-            return service.GetById(id);
+            return Ok(await service.getByIdAsync(id));
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Question value)
+        public async Task<IActionResult> Put(int id, [FromBody] Question value)
         {
-            var existingQuestion = service.GetById(id);
+            var existingQuestion = await service.getByIdAsync(id);
             if (existingQuestion == null)
             {
                 return NotFound();
             }
 
-            service.UpdateItem(id, value);
+            await service.updateItemAsync(id, value);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            service.DeleteItem(id);
+            await service.deleteItemAsync(id);
+            return NoContent();
         }
         [HttpPost]
-        public ActionResult<Question> Post([FromBody] Question value)
+        public async Task<ActionResult<Question>> Post([FromBody] Question value)
         {
             try
             {
-                var result = service.AddItem(value);
+                var result = await service.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.QuestionId }, result);
             }
             catch (Exception ex)

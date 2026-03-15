@@ -18,34 +18,37 @@ namespace webApiProject.Controllers
         }
 
         [HttpGet]
-        public List<Chapter> Get()
+        public async Task<ActionResult<List<Chapter>>> Get()
         {
-            return service.GetAll();
+            return Ok(await service.getAllAsync());
         }
 
         [HttpGet("{id}")]
-        public Chapter Get(int id)
+        public async Task<ActionResult<Chapter>> Get(int id)
         {
-            return service.GetById(id);
+            var chapter = await service.getByIdAsync(id);
+            return Ok(chapter);
         }
 
         [HttpPut("{id}")]
-        public void Put([FromBody] Chapter value)
+        public async Task<ActionResult> Put([FromBody] Chapter value)
         {
-            service.AddItem(value);
+            await service.addItemAsync(value);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            service.DeleteItem(id);
+            await service.deleteItemAsync(id);
+            return NoContent();
         }
         [HttpPost]
-        public ActionResult<Chapter> Post([FromBody] Chapter value)
+        public async Task<ActionResult<Chapter>> Post([FromBody] Chapter value)
         {
             try
             {
-                var result = service.AddItem(value);
+                var result = await service.addItemAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = result.ChapterId }, result);
             }
             catch (Exception ex)
@@ -54,11 +57,11 @@ namespace webApiProject.Controllers
             }
         }
         [HttpGet("course/{id}")]
-        public ActionResult<List<Chapter>> GetByIdCourse(int id)
+        public async Task<ActionResult<List<Chapter>>> GetByIdCourse(int id)
         {
             try
             {
-                var chapter = service.GetAll().Where(x => x.CourseId == id).ToList();
+                var chapter = (await service.getAllAsync()).Where(x => x.CourseId == id).ToList();
                 if (chapter == null || chapter.Count == 0)
                     return NotFound($"Chapter with Course ID {id} not found");
                 return Ok(chapter);

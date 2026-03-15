@@ -15,42 +15,42 @@ namespace Repository.Repositories
         {
                this._context = context;
         }
-        public Question AddItem(Question item)
+        public async Task<Question> AddAsync(Question item)
         {
-            _context.Set<Question>().Add(item);
-            _context.save();
+            await _context.Set<Question>().AddAsync(item);
+            await _context.saveAsync();
             return item;
         }
 
-        public void DeleteItem(int id)
+        public async Task DeleteAsync(int id)
         {
-            var question = GetById(id);
+            var question = await getByIdAsync(id);
             if (question != null)
             {
-                _context.Set<Question>().Remove(question  );
-                _context.save();
+                _context.Set<Question>().Remove(question);
+                await _context.saveAsync();
             }
         }
 
-        public List<Question> GetAll()
+        public async Task<List<Question>> getAllAsync()
         {
-           return _context.Set<Question>().ToList();  
+           return await Task.FromResult(_context.Set<Question>().ToList());  
         }
 
-        public Question GetById(int id)
+        public async Task<Question> getByIdAsync(int id)
         {
-            return _context.Set<Question>().FirstOrDefault(q => q.QuestionId == id);
+            return await Task.FromResult(_context.Set<Question>().FirstOrDefault(q => q.QuestionId == id));
         }
 
-        public void UpdateItem(int id, Question item)
+        public async Task UpdateAsync(Question item)
         {
-            var question = GetById(id);
+            var question = await getByIdAsync(item.QuestionId);
             if (question != null)
             {
                 question.ChapterId = item.ChapterId;
                 question.Questions = item.Questions;
                 question.Level = item.Level;
-                _context.save();
+                await _context.saveAsync();
             }
         }
     }

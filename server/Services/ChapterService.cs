@@ -18,29 +18,29 @@ namespace Service.Services
         {
             this.repository = repository;
         }
-        public Chapter AddItem(Chapter item)
+        public async Task<Chapter> addItemAsync(Chapter item)
         {
-            return repository.AddItem(item);
+            return await repository.AddAsync(item);
         }
 
-        public void DeleteItem(int id)
+        public async Task deleteItemAsync(int id)
         {
-            repository.DeleteItem(id);
+            await repository.DeleteAsync(id);
         }
 
-        public List<Chapter> GetAll()
+        public async Task<List<Chapter>> getAllAsync()
         {
-           return repository.GetAll();
+           return await repository.getAllAsync();
         }
 
-        public Chapter GetById(int id)
+        public async Task<Chapter> getByIdAsync(int id)
         {
-            return repository.GetById(id);
+            return await repository.getByIdAsync(id);
         }
 
-        public void UpdateItem(int id, Chapter item)
+        public async Task updateItemAsync(int id, Chapter item)
         {
-            repository.UpdateItem(id,item);
+            await repository.UpdateAsync(item);
         }
     }
 }

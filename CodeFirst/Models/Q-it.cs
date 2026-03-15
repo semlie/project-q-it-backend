@@ -43,9 +43,9 @@ namespace CodeFirst.Models
         ICollection<TeacherClass> IContext.TeacherClasses => TeacherClass.ToList();
         ICollection<TestResult> IContext.TestResults => TestResults.ToList();
 
-        public void save()
+        public async Task saveAsync()
         {
-            SaveChanges();
+           await SaveChangesAsync();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

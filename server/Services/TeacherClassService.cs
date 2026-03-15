@@ -13,29 +13,29 @@ namespace Service.Services
             this.repository = repository;
         }
 
-        public TeacherClass AddItem(TeacherClass item)
+        public async Task<TeacherClass> addItemAsync(TeacherClass item)
         {
-            return repository.AddItem(item);
+            return await repository.AddAsync(item);
         }
 
-        public void DeleteItem(int id)
+        public async Task deleteItemAsync(int id)
         {
-            repository.DeleteItem(id);
+            await repository.DeleteAsync(id);
         }
 
-        public List<TeacherClass> GetAll()
+        public async Task<List<TeacherClass>> getAllAsync()
         {
-            return repository.GetAll();
+            return await repository.getAllAsync();
         }
 
-        public TeacherClass GetById(int id)
+        public async Task<TeacherClass> getByIdAsync(int id)
         {
-            return repository.GetById(id);
+            return await repository.getByIdAsync(id);
         }
 
-        public void UpdateItem(int id, TeacherClass newItem)
+        public async Task updateItemAsync(int id, TeacherClass newItem)
         {
-            repository.UpdateItem(id, newItem);
+            await repository.UpdateAsync(newItem);
         }
     }
 }

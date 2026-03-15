@@ -14,9 +14,9 @@ namespace Repository.Entities
         public int  AnswerOptionsId {get; set; }
         [ForeignKey("Question")]
         public int QuestionId { get; set; }
-        public string Option { get; set; }
+        public string? Option { get; set; }
         public bool IsCorrect { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
     }
 }

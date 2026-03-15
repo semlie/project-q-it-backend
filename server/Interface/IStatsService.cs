@@ -1,21 +1,22 @@
 using Repository.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Service.Interface
 {
     public interface IStatsService
     {
-        List<OverallStat> GetStudentOverallStats(int userId);
-        List<SubjectPerformanceItem> GetStudentSubjectPerformance(int userId, string timeRange = "semester");
-        List<RecentTest> GetStudentRecentTests(int userId);
-        List<StudyHabits> GetStudentStudyHabits(int userId);
-        List<Achievement> GetStudentAchievements(int userId);
-        List<WeeklyProgressItem> GetStudentWeeklyProgress(int userId);
+        Task<List<OverallStat>> GetStudentOverallStatsAsync(int userId);
+        Task<List<SubjectPerformanceItem>> GetStudentSubjectPerformanceAsync(int userId, string timeRange = "semester");
+        Task<List<RecentTest>> GetStudentRecentTestsAsync(int userId);
+        Task<List<StudyHabits>> GetStudentStudyHabitsAsync(int userId);
+        Task<List<Achievement>> GetStudentAchievementsAsync(int userId);
+        Task<List<WeeklyProgressItem>> GetStudentWeeklyProgressAsync(int userId);
         
-        List<TeacherOverallStat> GetTeacherOverallStats(int userId);
-        List<ClassProgress> GetTeacherClassProgress(int userId);
-        List<TeacherSubjectItem> GetTeacherSubjects(int userId);
-        List<RecentTest> GetTeacherRecentTests(int userId);
+        Task<List<TeacherOverallStat>> GetTeacherOverallStatsAsync(int userId);
+        Task<List<ClassProgress>> GetTeacherClassProgressAsync(int userId);
+        Task<List<TeacherSubjectItem>> GetTeacherSubjectsAsync(int userId);
+        Task<List<RecentTest>> GetTeacherRecentTestsAsync(int userId);
     }
 
     public class OverallStat

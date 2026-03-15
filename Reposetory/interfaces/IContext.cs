@@ -21,6 +21,6 @@ namespace Repository.interfaces
         public ICollection<TeacherClass> TeacherClasses { get; }
         public ICollection<TestResult> TestResults { get; }
         public DbSet<T> Set<T>() where T : class;
-        public void save();
+        public Task saveAsync();
     }
 }
