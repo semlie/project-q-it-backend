@@ -61,12 +61,7 @@ namespace Service.Services
             {
                 if (user.ClassId.HasValue)
                 {
-                    var studentClass = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == user.ClassId.Value);
-                    if (studentClass != null)
-                    {
-                        return _context.Set<Course>().Where(c => c.SchoolId == studentClass.SchoolId).ToList();
-                    }
-                    return new List<Course>();
+                    return _context.Set<Course>().Where(c => c.ClassId == user.ClassId.Value).ToList();
                 }
                 return new List<Course>();
             }
@@ -78,14 +73,8 @@ namespace Service.Services
                     return new List<Course>();
 
                 var classIds = teacherClasses.Select(tc => tc.ClassId).ToList();
-                var classSchoolIds = _context.Set<Classes>()
-                    .Where(c => classIds.Contains(c.ClassId))
-                    .Select(c => c.SchoolId)
-                    .Distinct()
-                    .ToList();
-
                 var courses = _context.Set<Course>()
-                    .Where(c => classSchoolIds.Contains(c.SchoolId))
+                    .Where(c => classIds.Contains(c.ClassId))
                     .ToList();
 
                 return courses;

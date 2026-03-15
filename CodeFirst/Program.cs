@@ -42,30 +42,15 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<BDQit>();
 
-Console.WriteLine("Starting database seeding...");
+Console.WriteLine("Starting database...");
 Console.WriteLine("======================================");
-// Ensure database schema exists (apply migrations)
-Console.WriteLine("Ensuring database is created/migrated...");
-try
-{
-    await context.Database.MigrateAsync();
-    Console.WriteLine("Database migrations applied (or database created).");
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Warning: failed to apply migrations: {ex.Message}");
-    Console.WriteLine("Attempting EnsureCreated() as a fallback to create tables for the current model.");
-    try
-    {
-        var created = await context.Database.EnsureCreatedAsync();
-        Console.WriteLine(created ? "Database created via EnsureCreated()." : "Database already exists (EnsureCreated returned false).");
-    }
-    catch (Exception ex2)
-    {
-        Console.WriteLine($"EnsureCreated fallback also failed: {ex2.Message}");
-        Console.WriteLine("Proceeding — Clear/Seed may still fail if tables are missing.");
-    }
-}
+
+// Delete and recreate database with fresh schema
+Console.WriteLine("Deleting old database...");
+try { await context.Database.EnsureDeletedAsync(); } catch { }
+Console.WriteLine("Creating fresh database...");
+await context.Database.EnsureCreatedAsync();
+Console.WriteLine("Fresh database created.");
 
 try
 {
@@ -77,7 +62,7 @@ catch (Exception ex)
     Console.WriteLine($"Warning while clearing database: {ex.Message}");
     Console.WriteLine("Continuing — existing tables may not have been present.");
 }
-// await SeedData(context); // Commented out - only clearing
+// await SeedData(context); // Disabled - only clearing
 
 Console.WriteLine("======================================");
 Console.WriteLine("Database cleared!");
@@ -226,7 +211,7 @@ async Task SeedData(BDQit context)
         courses.Add(new Course
         {
             CourseName = courseName,
-            SchoolId = cls.SchoolId
+            ClassId = cls.ClassId
         });
     }
     context.Course.AddRange(courses);

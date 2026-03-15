@@ -48,7 +48,7 @@ namespace Repository.Repositories
             if (course != null)
             {
                 course.CourseName = item.CourseName;
-                course.SchoolId = item.SchoolId;
+                course.ClassId = item.ClassId;
                 await _context.saveAsync();
             }
         }

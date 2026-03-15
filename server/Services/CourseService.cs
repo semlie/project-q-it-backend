@@ -47,11 +47,7 @@ namespace Service.Services
 
         public async Task<List<Course>> GetCoursesByClassIdAsync(int classId)
         {
-            var cls = _context.Set<Classes>().FirstOrDefault(c => c.ClassId == classId);
-            if (cls == null)
-                throw new InvalidOperationException($"Class with ID {classId} not found");
-
-            var courses = (await _repository.getAllAsync()).Where(x => x.SchoolId == cls.SchoolId).ToList();
+            var courses = (await _repository.getAllAsync()).Where(x => x.ClassId == classId).ToList();
             return courses;
         }
     }
