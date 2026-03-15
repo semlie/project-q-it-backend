@@ -70,16 +70,17 @@ catch (Exception ex)
 try
 {
     await ClearDatabase(context);
+    Console.WriteLine("Database cleared successfully!");
 }
 catch (Exception ex)
 {
     Console.WriteLine($"Warning while clearing database: {ex.Message}");
-    Console.WriteLine("Continuing to seeding — existing tables may not have been present.");
+    Console.WriteLine("Continuing — existing tables may not have been present.");
 }
-await SeedData(context);
+// await SeedData(context); // Commented out - only clearing
 
 Console.WriteLine("======================================");
-Console.WriteLine("Database seeding completed!");
+Console.WriteLine("Database cleared!");
 
 async Task ClearDatabase(BDQit context)
 {

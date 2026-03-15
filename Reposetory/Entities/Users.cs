@@ -12,18 +12,26 @@ namespace Repository.Entities
     {
         [Key]
         public int UserId { get; set; }
-        public required string UserName { get; set; }
-        public required string UserEmail { get; set; }
-        public required string UserPassword { get; set; }
-        public required string Role { get; set; } // "Student" או "Teacher"
+        [Required]
+        [MaxLength(100)]
+        public string UserName { get; set; } = string.Empty;
+        [Required]
+        [EmailAddress]
+        [MaxLength(255)]
+        public string UserEmail { get; set; } = string.Empty;
+        public string? UserPassword { get; set; }
+        [Required]
+        [MaxLength(20)]
+        public string Role { get; set; } = string.Empty; // "Student" or "Teacher"
+        [MaxLength(500)]
         public string? UserImageUrl { get; set; }
         
-        // אם זה תלמיד - יש קישור לכיתה אחת
+        // If student - link to one class
         [ForeignKey("Class")]
         public int? ClassId { get; set; }
         public virtual Classes? Class { get; set; }
         
-        // אם זה מורה - יש קישור לכמה כיתות (Many-to-Many)
+        // If teacher - link to multiple classes (Many-to-Many)
         public virtual ICollection<TeacherClass> TeacherClasses { get; set; } = new List<TeacherClass>();
     }
 }

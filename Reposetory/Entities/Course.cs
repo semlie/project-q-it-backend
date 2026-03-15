@@ -13,8 +13,8 @@ namespace Repository.Entities
         [Key]
         public int CourseId { get; set; }
         public required string CourseName { get; set; }
-        [ForeignKey("School")]
-        public int SchoolId { get; set; }
-        public virtual School? School { get; set; }
+        [ForeignKey("Classes")]
+        public int ClassId { get; set; }
+        public virtual Classes? Classes { get; set; }
     }
 }
